@@ -1,0 +1,93 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>xyz.schnorxoborx</groupId>
+		<artifactId>schnorxolib</artifactId>
+		<version>${project.version}</version>
+	</parent>
+
+	<artifactId>schnorxolib-base</artifactId>
+
+	<name>${project.title} : Base</name>
+
+	<properties>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+	</properties>
+
+	<repositories>
+
+		<repository>
+			<id>central</id>
+			<url>http://repo.maven.apache.org/maven2/</url>
+		</repository>
+
+	</repositories>
+
+	<dependencies>
+
+		<!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
+		<dependency>
+			<groupId>commons-configuration</groupId>
+			<artifactId>commons-configuration</artifactId>
+			<version>1.10</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/log4j/log4j -->
+		<!--
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		-->
+
+		<!-- https://mvnrepository.com/artifact/org.joda/joda-money -->
+		<dependency>
+			<groupId>org.joda</groupId>
+			<artifactId>joda-money</artifactId>
+			<version>1.0.4</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.vdurmont/etaprinter -->
+		<dependency>
+			<groupId>com.vdurmont</groupId>
+			<artifactId>etaprinter</artifactId>
+			<version>2.0.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.eclipse.tycho/org.eclipse.osgi -->
+		<dependency>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>org.eclipse.osgi</artifactId>
+			<version>3.13.0.v20180226-1711</version>
+		</dependency>
+
+	</dependencies>
+
+
+	<build>
+
+		<plugins>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.3</version>
+				<configuration>
+					<show>private</show>
+					<nohelp>true</nohelp>
+					<!-- <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable> -->
+					<javadocExecutable>/usr/bin/javadoc</javadocExecutable>
+				</configuration>
+			</plugin>
+      
+      		</plugins>
+
+	</build>
+
+</project>
