@@ -26,7 +26,7 @@ Parts of it were taken from a not-much-better lib that he uses internally. He ca
 
 **Is this going to be re-iterated over? Can we expect that to be a full-blown, beautifully-designed and MECE base library everybody can use one day?**
 
-Very probably not. The author will probabbly add some additional auxiliary classes over next months, he might possibly even open a new module (although that seems a stretch right now), but that's about as far as it ever will go.
+Very probably not. The author will probably add some additional auxiliary classes over the next months, he might possibly even open a new module (although that seems a stretch right now), but that's about as far as it ever will go.
 
 **Are the two above-mentioned projects the only ones that use this lib?**
 
