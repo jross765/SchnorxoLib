@@ -2,9 +2,9 @@
 
 `SchnorxoLib` is a small free and open-source Java library that contains a couple of auxiliary classes used in the following projects:
 
-* [JGnuCashLibNTools](https://github.com/jross765/jgnucashlibntools)
+* [JGnuCash Lib 'n' Tools](https://github.com/jross765/jgnucashlibntools)
 
-* [JKMyMoneyLibNTools](https://github.com/jross765/jkmymoneylibntools)
+* [JKMyMoney Lib 'n' Tools](https://github.com/jross765/jkmymoneylibntools)
 
 Its sole purpose is to reduce trivial redundancies between these projects.
 
