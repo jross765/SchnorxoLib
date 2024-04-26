@@ -24,7 +24,7 @@ echo "=============================================================="
   
 # mvn package
 mvn package -Dmaven.test.skip.exec
-mvn install
+# mvn install
 
 # ---------------------------------------------------------------------
 # JavaDoc

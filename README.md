@@ -1,6 +1,6 @@
 # Project SchnorxoLib
 
-`SchnorxoLib` is a small free and open-source Java library that contains a couple of auxiliary classes used in the following projects:
+`SchnorxoLib` is a small free and open-source Java library that contains a couple of auxiliary classes (a part of them exceptions) used in the following projects:
 
 * [JGnuCash Lib 'n' Tools](https://github.com/jross765/jgnucashlibntools)
 
@@ -18,7 +18,7 @@ Well, the author has asked himself that question, and this fact is the primary r
 
 The name means nothing. The author just chose it in lack of a better one. He could just as well have chosen "Hullabaloo", "Snoggowobble", "Snowwhite", "Henry the Great" or whatever. In order to avoid name clashes and misunderstandings, he chose one for which the search engine yielded no results. About the domain: No, it is not registered (to his knowledge, at least), and there is no organization behind it.
 
-**This collection of classes seems rather artificial and thrown-together. Don't you think so?**
+**This collection of classes seems rather uneven, artificial and thrown-together. Don't you think so?**
 
 It is, you're right. The author does not expect to win a "most-beautiful-and-well-designed-lib-of-the-year" contest with that. 
 
@@ -39,3 +39,23 @@ Currently, there is just one module:
 
 ## Major Changes
 ./.
+
+## Compiling the Sources
+To compile the sources, do the following:
+
+1) Make sure that you have Maven installed on your system.
+
+2) Clone the repository
+
+3) Check out the latest version tag. In this case: `V_0_1`.
+
+   For reasons the author cannot understand, there are plenty of self-appointed super-pro developers who do not seem to understand the concept of version tags and configuration management, i.e. that it's *not* always the latest version that you have to take...
+
+4) compile the sources and install the resulting JAR file in your local repository by typing:
+
+    `$ ./build.sh`
+
+     Then, either copy the resulting file to whereever you want to have it, 
+     or do it the standard Maven way be typing:
+
+    `$ mvn install`
