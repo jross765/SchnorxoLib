@@ -51,7 +51,7 @@ To compile the sources, do the following:
 
    For reasons the author cannot understand, there are plenty of self-appointed super-pro developers who do not seem to understand the concept of version tags and configuration management, i.e. that it's *not* always the latest version that you have to take...
 
-4) compile the sources and install the resulting JAR file in your local repository by typing:
+4) Compile the sources and install the resulting JAR file in your local repository by typing:
 
     `$ ./build.sh`
 
