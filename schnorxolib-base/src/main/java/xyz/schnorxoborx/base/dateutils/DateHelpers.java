@@ -75,7 +75,7 @@ public class DateHelpers
   }
   
   /**
-   * Gibt ein Datum im Thilo-Datei-Format aus.
+   * Gibt ein Datum im ISO-Datei-Format aus.
    * @param dateStr
    * @return
    */
