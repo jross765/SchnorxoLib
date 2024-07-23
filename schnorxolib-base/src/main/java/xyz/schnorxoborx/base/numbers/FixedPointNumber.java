@@ -257,7 +257,7 @@ public class FixedPointNumber extends BigDecimalWrapper implements Cloneable {
 	}
 
 	// ---------------------------------------------------------------
-
+	
 	/**
 	 * @param other the value to compare to
 	 * @return true if and only if this &gt; other
