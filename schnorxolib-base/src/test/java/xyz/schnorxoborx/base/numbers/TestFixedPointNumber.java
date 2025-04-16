@@ -1,6 +1,7 @@
 package xyz.schnorxoborx.base.numbers;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.math.BigDecimal;
 
@@ -262,4 +263,128 @@ public class TestFixedPointNumber {
 //      // No, does not work like that:
 //    	assertEquals(fp.toGnuCashString(), br.toString());
 //    }
+    
+    @Test
+    public void test04_1() throws Exception {
+    	FixedPointNumber fp1 = new FixedPointNumber("2123");
+    	FixedPointNumber fp2 = new FixedPointNumber("2123.00");
+    	assertEquals( fp1, fp2 );
+    	assertEquals( false, fp1.isLessThan( fp2 ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2 ) );
+    	
+    	fp1 = new FixedPointNumber("2123");
+    	fp2 = new FixedPointNumber("2125");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.isLessThan( fp2 ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2 ) );
+    	assertEquals( false, fp2.isLessThan( fp1 ) );
+    	assertEquals( true, fp2.isGreaterThan( fp1 ) );
+    	
+    	fp1 = new FixedPointNumber("2123");
+    	fp2 = new FixedPointNumber("2123.01");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.isLessThan( fp2 ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2 ) );
+    	assertEquals( false, fp2.isLessThan( fp1 ) );
+    	assertEquals( true, fp2.isGreaterThan( fp1 ) );
+    	
+    	fp1 = new FixedPointNumber("-2123");
+    	fp2 = new FixedPointNumber("-2123.01");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( false, fp1.isLessThan( fp2 ) );
+    	assertEquals( true, fp1.isGreaterThan( fp2 ) );
+    	assertEquals( true, fp2.isLessThan( fp1 ) );
+    	assertEquals( false, fp2.isGreaterThan( fp1 ) );
+    	
+    	fp1 = new FixedPointNumber("-2123.00");
+    	fp2 = new FixedPointNumber("-2124.00");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( false, fp1.isLessThan( fp2 ) );
+    	assertEquals( true, fp1.isGreaterThan( fp2 ) );
+    	assertEquals( true, fp2.isLessThan( fp1 ) );
+    	assertEquals( false, fp2.isGreaterThan( fp1 ) );
+    }
+    
+    @Test
+    public void test04_2() throws Exception {
+    	FixedPointNumber fp1 = new FixedPointNumber("2123");
+    	FixedPointNumber fp2 = new FixedPointNumber("2123.00");
+    	assertEquals( fp1, fp2 );
+    	assertEquals( false, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	
+    	fp1 = new FixedPointNumber("2123");
+    	fp2 = new FixedPointNumber("2125");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp2.isLessThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( true, fp2.isGreaterThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    	
+    	fp1 = new FixedPointNumber("2123");
+    	fp2 = new FixedPointNumber("2123.01");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp2.isLessThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( true, fp2.isGreaterThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    	
+    	fp1 = new FixedPointNumber("-2123");
+    	fp2 = new FixedPointNumber("-2123.01");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( false, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( true, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( true, fp2.isLessThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp2.isGreaterThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    	
+    	fp1 = new FixedPointNumber("-2123.00");
+    	fp2 = new FixedPointNumber("-2124.00");
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( false, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( true, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( true, fp2.isLessThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp2.isGreaterThan( fp1, ConstTest.DIFF_TOLERANCE ) );
+    }
+    
+    @Test
+    public void test04_3() throws Exception {
+    	FixedPointNumber fp1 = new FixedPointNumber("2123");
+    	FixedPointNumber fp2 = new FixedPointNumber( fp1.getBigDecimal().add( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE * 2 ) ) );
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.isLessThan( fp2 ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2 ) );
+    	
+    	fp2 = new FixedPointNumber( fp1.getBigDecimal().add( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE ) ) );
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.isLessThan( fp2 ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2 ) );
+    	
+    	fp2 = new FixedPointNumber( fp1.getBigDecimal().add( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE * 0.5 ) ) );
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.isLessThan( fp2 ) );
+    	assertEquals( false, fp1.isGreaterThan( fp2 ) );
+    }
+    
+    @Test
+    public void test04_4() throws Exception {
+    	FixedPointNumber fp1 = new FixedPointNumber("2123");
+    	FixedPointNumber fp2 = new FixedPointNumber( fp1.getBigDecimal().add( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE * 2 ) ) );
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( false, fp1.equals( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( true, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE) );
+    	assertEquals( false, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	
+    	fp2 = new FixedPointNumber( fp1.getBigDecimal().add( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE ) ) );
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.equals( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) ); // sic, as opposed to result in test_04_3
+    	assertEquals( false, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) ); // sic
+    	
+    	fp2 = new FixedPointNumber( fp1.getBigDecimal().add( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE * 0.5 ) ) );
+    	assertNotEquals( fp1, fp2 );
+    	assertEquals( true, fp1.equals( fp2, ConstTest.DIFF_TOLERANCE ) );
+    	assertEquals( false, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) ); // sic, as opposed to result in test_04_3
+    	assertEquals( false, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) ); // dto.
+    }
+    
 }

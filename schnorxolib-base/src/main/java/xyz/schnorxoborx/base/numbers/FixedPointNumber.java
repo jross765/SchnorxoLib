@@ -280,7 +280,7 @@ public class FixedPointNumber extends BigDecimalWrapper implements Cloneable {
 	 * @return true if and only if this &gt; other
 	 */
 	public boolean isGreaterThan(final BigDecimal other) {
-		return value.compareTo(other) > 0.0;
+		return value.compareTo(other) > 0;
 	}
 
 	/**
@@ -293,16 +293,9 @@ public class FixedPointNumber extends BigDecimalWrapper implements Cloneable {
 			throw new IllegalArgumentException("Tolerance must be > 0.0");
 
 		BigDecimal diff = value.subtract(other);
+		// System.err.println("diff: " + diff);
 
-		if ( diff.doubleValue() > tolerance ) {
-			return true;
-		} else {
-			if ( Math.abs(diff.doubleValue()) <= tolerance ) {
-				return false;
-			} else {
-				return true;
-			}
-		}
+		return ( diff.doubleValue() > tolerance );
 	}
 	
 	// ----------------------------
@@ -316,7 +309,7 @@ public class FixedPointNumber extends BigDecimalWrapper implements Cloneable {
 	}
 
 	public boolean isLessThan(final FixedPointNumber other, double tolerance) {
-		return isLessThan(other.getBigDecimal(), tolerance);
+		return other.isGreaterThan(this, tolerance);
 	}
 
 	/**
@@ -324,24 +317,15 @@ public class FixedPointNumber extends BigDecimalWrapper implements Cloneable {
 	 * @return true if and only if this&lt;other
 	 */
 	public boolean isLessThan(final BigDecimal other) {
-		return value.compareTo(other) < 0.0;
+		return value.compareTo(other) < 0;
 	}
 
 	public boolean isLessThan(final BigDecimal other, double tolerance) {
 		if ( tolerance <= 0.0 )
 			throw new IllegalArgumentException("Tolerance must be > 0.0");
 
-		BigDecimal diff = value.subtract(other);
-
-		if ( diff.doubleValue() < -tolerance ) {
-			return true;
-		} else {
-			if ( Math.abs(diff.doubleValue()) <= tolerance ) {
-				return false;
-			} else {
-				return true;
-			}
-		}
+		FixedPointNumber temp = new FixedPointNumber(other);
+		return temp.isGreaterThan(this, tolerance);
 	}
 	
 	// ---------------------------------------------------------------
@@ -595,6 +579,17 @@ public class FixedPointNumber extends BigDecimalWrapper implements Cloneable {
 		}
 
 		return false;
+	}
+
+	public boolean equals(final FixedPointNumber other, double tolerance) {
+		
+		BigDecimal diff = value.subtract(other.getBigDecimal());
+		// System.err.println("diff: " + diff);
+		if ( Math.abs( diff.doubleValue() ) <= tolerance ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	// ---------------------------------------------------------------
