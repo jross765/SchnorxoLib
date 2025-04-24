@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>xyz.schnorxoborx</groupId>
 		<artifactId>schnorxolib</artifactId>
-		<version>${project.version}</version>
+		<version>0.1.1</version>
 	</parent>
 
 	<artifactId>schnorxolib-base</artifactId>
