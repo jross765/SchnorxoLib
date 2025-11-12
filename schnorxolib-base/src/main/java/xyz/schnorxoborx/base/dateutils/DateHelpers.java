@@ -11,9 +11,9 @@ import java.util.GregorianCalendar;
 public class DateHelpers
 {
   // ::MAGIC
-  public final static String DATE_FORMAT_1 = "dd.MM.yyyy";
-  public final static String DATE_FORMAT_2 = "yyyy-MM-dd";
-  public final static String DATE_UNSET = "01.01.1900";
+  public final static String DATE_FORMAT_ISO = "yyyy-MM-dd";
+  public final static String DATE_FORMAT_DE  = "dd.MM.yyyy";
+  public final static String DATE_UNSET      = "01.01.1900";
   
   // -----------------------------------------------------------------
 
@@ -24,7 +24,7 @@ public class DateHelpers
    */
   public static Date parseDate(String dateStr) throws Exception
   {
-    return parseDate(dateStr, DATE_FORMAT_1); 
+    return parseDate(dateStr, DATE_FORMAT_DE); 
   }
   
   /**
@@ -65,13 +65,13 @@ public class DateHelpers
    */
   public static String getStr1(Date date) throws Exception
   {
-    return getStr(date, DATE_FORMAT_1);
+    return getStr(date, DATE_FORMAT_DE);
   }
   
   /* dto. */
   public static String getStr1(Day day) throws Exception
   {
-    return getStr(day.getDate(), DATE_FORMAT_1);
+    return getStr(day.getDate(), DATE_FORMAT_DE);
   }
   
   /**
@@ -81,13 +81,13 @@ public class DateHelpers
    */
   public static String getStr2(Date date) throws Exception
   {
-    return getStr(date, DATE_FORMAT_2);
+    return getStr(date, DATE_FORMAT_ISO);
   }
   
   /* dto. */
   public static String getStr2(Day day) throws Exception
   {
-    return getStr(day.getDate(), DATE_FORMAT_2);
+    return getStr(day.getDate(), DATE_FORMAT_ISO);
   }
   
   /**

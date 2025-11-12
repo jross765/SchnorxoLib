@@ -2,6 +2,7 @@ package xyz.schnorxoborx.base.cmdlinetools;
 
 public class Helper
 {
+
 	public enum Mode
 	{
 		ID, 
@@ -27,6 +28,12 @@ public class Helper
 	{
 		ISO_8601, 
 		DE
+	}
+
+	public enum OutputMode
+	{
+		HUMAN,
+	    MACHINE
 	}
 
 }

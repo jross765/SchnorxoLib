@@ -5,7 +5,7 @@
 
 	<groupId>xyz.schnorxoborx.schnorxolib</groupId>
 	<artifactId>schnorxolib</artifactId>
-	<version>0.1.1</version>
+	<version>0.2</version>
 	<packaging>pom</packaging>
 	<name>${project.title}</name>
 
@@ -13,7 +13,6 @@
 		<java.version>17</java.version>
 		<slf4j.version>2.0.9</slf4j.version>
 		<project.title>SchnorxoLib</project.title>
-		<project.version>0.1.1</project.version>
 	</properties>
 
 	<modules>
