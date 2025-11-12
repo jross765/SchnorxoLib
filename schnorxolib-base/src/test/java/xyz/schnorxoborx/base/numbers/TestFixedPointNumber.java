@@ -19,7 +19,6 @@ public class TestFixedPointNumber {
 		junit.textui.TestRunner.run(suite());
     }
 
-    @SuppressWarnings("exports")
 	public static junit.framework.Test suite() {
     	return new JUnit4TestAdapter(TestFixedPointNumber.class);
     }
@@ -203,45 +202,45 @@ public class TestFixedPointNumber {
     	// ---
 
     	fp.add("77/82");
-    	br = br.plus(new BigRational(77, 82));
+    	br = br.add(new BigRational(77, 82));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
 
     	fp.add("783/11");
-    	br = br.plus(new BigRational(783, 11));
+    	br = br.add(new BigRational(783, 11));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
     	
     	// ---
 
     	fp.subtract("812/749");
-    	br = br.minus(new BigRational(812, 749));
+    	br = br.subtract(new BigRational(812, 749));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
 
     	fp.subtract("387/21");
-    	br = br.minus(new BigRational(387, 21));
+    	br = br.subtract(new BigRational(387, 21));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
     	
     	// ---
 
     	fp.multiply("12/8");
-    	br = br.times(new BigRational(12, 8));
+    	br = br.multiplyBy(new BigRational(12, 8));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
 
     	fp.multiply("275/18");
-    	br = br.times(new BigRational(275, 18));
+    	br = br.multiplyBy(new BigRational(275, 18));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
 
     	fp.multiply("12/8");
-    	br = br.times(new BigRational(12, 8));
+    	br = br.multiplyBy(new BigRational(12, 8));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
 
     	// ---
 
     	fp.divide("67/33");
-    	br = br.divides(new BigRational(67, 33));
+    	br = br.divideBy(new BigRational(67, 33));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
 
     	fp.divide("59/24");
-    	br = br.divides(new BigRational(59, 24));
+    	br = br.divideBy(new BigRational(59, 24));
     	assertEquals(fp.getBigDecimal().doubleValue(), br.getBigDecimal().doubleValue(), ConstTest.DIFF_TOLERANCE);
 
     	// ---
@@ -385,6 +384,93 @@ public class TestFixedPointNumber {
     	assertEquals( true, fp1.equals( fp2, ConstTest.DIFF_TOLERANCE ) );
     	assertEquals( false, fp1.isLessThan( fp2, ConstTest.DIFF_TOLERANCE ) ); // sic, as opposed to result in test_04_3
     	assertEquals( false, fp1.isGreaterThan( fp2, ConstTest.DIFF_TOLERANCE ) ); // dto.
+    }
+    
+
+    public void test10_1() throws Exception {
+    	FixedPointNumber num = new FixedPointNumber();
+    	BigRational brat = num.asBigRational();
+    	assertEquals(0, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("0");
+    	brat = num.asBigRational();
+    	assertEquals(0, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("1");
+    	brat = num.asBigRational();
+    	assertEquals(1, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("1/1");
+    	brat = num.asBigRational();
+    	assertEquals(1, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("100/100");
+    	brat = num.asBigRational();
+    	assertEquals(1, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("100/200");
+    	brat = num.asBigRational();
+    	assertEquals(1, brat.getNumerator().longValue());
+    	assertEquals(2, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("200/100");
+    	brat = num.asBigRational();
+    	assertEquals(2, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("1287472/1000000");
+    	brat = num.asBigRational();
+    	// ::TODO
+    	assertEquals(5798258419449947L, brat.getNumerator().longValue());
+    	assertEquals(4503599627370496L, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+    	
+    	num = new FixedPointNumber("355/113");
+    	brat = num.asBigRational();
+    	// ::TODO
+//    	assertEquals(355, brat.getNumerator().longValue());
+//    	assertEquals(113, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+    	assertEquals(Math.PI, num.doubleValue(), ConstTest.DIFF_TOLERANCE);
+    	assertEquals(Math.PI, brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+    	
+    	// ---
+
+    	num = new FixedPointNumber("-1"); // valid
+    	brat = num.asBigRational();
+    	assertEquals(-1, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("-100/100"); // valid
+    	brat = num.asBigRational();
+    	assertEquals(-1, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("100/-100"); // valid
+    	brat = num.asBigRational();
+    	assertEquals(-1, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
+
+    	num = new FixedPointNumber("-100/-100"); // valid
+    	brat = num.asBigRational();
+    	assertEquals(1, brat.getNumerator().longValue());
+    	assertEquals(1, brat.getDenominator().longValue());
+    	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE);
     }
     
 }

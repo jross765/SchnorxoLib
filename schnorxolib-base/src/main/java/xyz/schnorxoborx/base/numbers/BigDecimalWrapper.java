@@ -54,7 +54,6 @@ public abstract class BigDecimalWrapper extends BigDecimal {
 	 *
 	 * @param listener The PropertyChangeListener to be added
 	 */
-	@SuppressWarnings("exports")
 	public final void addPropertyChangeListener(final PropertyChangeListener listener) {
 		if ( myPtyChg == null ) {
 			myPtyChg = new PropertyChangeSupport(this);
@@ -69,7 +68,6 @@ public abstract class BigDecimalWrapper extends BigDecimal {
 	 * @param ptyName The name of the property to listen on.
 	 * @param listener     The PropertyChangeListener to be added
 	 */
-	@SuppressWarnings("exports")
 	public final void addPropertyChangeListener(final String ptyName, final PropertyChangeListener listener) {
 		if ( myPtyChg == null ) {
 			myPtyChg = new PropertyChangeSupport(this);
@@ -83,7 +81,6 @@ public abstract class BigDecimalWrapper extends BigDecimal {
 	 * @param ptyName The name of the property that was listened on.
 	 * @param listener     The PropertyChangeListener to be removed
 	 */
-	@SuppressWarnings("exports")
 	public final void removePropertyChangeListener(final String ptyName, final PropertyChangeListener listener) {
 		if ( myPtyChg != null ) {
 			myPtyChg.removePropertyChangeListener(ptyName, listener);
@@ -96,7 +93,6 @@ public abstract class BigDecimalWrapper extends BigDecimal {
 	 *
 	 * @param listener The PropertyChangeListener to be removed
 	 */
-	@SuppressWarnings("exports")
 	public synchronized void removePropertyChangeListener(final PropertyChangeListener listener) {
 		if ( myPtyChg != null ) {
 			myPtyChg.removePropertyChangeListener(listener);
