@@ -11,7 +11,7 @@ import java.math.RoundingMode;
 
 /**
  * This is a helper super-class for classes that can be converted to a
- * BigDecimal and shall extend that class but not use it's state.<br/>
+ * BigDecimal and shall extend that class but not use its state.<br/>
  */
 public abstract class BigDecimalWrapper extends BigDecimal {
 
