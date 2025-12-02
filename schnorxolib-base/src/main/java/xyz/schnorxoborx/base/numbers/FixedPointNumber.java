@@ -3,6 +3,8 @@ package xyz.schnorxoborx.base.numbers;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -53,8 +55,34 @@ public class FixedPointNumber extends BigDecimalWrapper
 	private static final char DECIMAL_SEP_COMMA = ',';
 	
     private static final int  SCALE_MIN = 5;
-    private static final int  SCALE_MAX = 12;
+    private static final int  SCALE_MAX = 32;
 
+	// ----------------------------
+    // CAUTION: Use the following >> always with copy() <<
+    // (remember, this class is mutable):
+    //
+    // ==> not:
+    // FixedPointNumber fp1 = FixedPointNumber.ZERO; 
+    // FixedPointNumber fp2 = FixedPointNumber.ONE_HALF; 
+    // but rather:
+    // FixedPointNumber fp1 = FixedPointNumber.ZERO.copy();
+    // FixedPointNumber fp2 = FixedPointNumber.ONE_HALF.copy(); 
+    
+    public static final FixedPointNumber ZERO         = new FixedPointNumber(0);
+    public static final FixedPointNumber ONE          = new FixedPointNumber(1);
+    public static final FixedPointNumber TWO          = new FixedPointNumber(2);
+    public static final FixedPointNumber TEN          = new FixedPointNumber(10);
+    public static final FixedPointNumber ONE_HUNDRED  = new FixedPointNumber(100);
+    public static final FixedPointNumber ONE_THOUSAND = new FixedPointNumber(1000);
+    
+    public static final FixedPointNumber ONE_HALF       = new FixedPointNumber("1/2");
+    public static final FixedPointNumber ONE_THIRD      = new FixedPointNumber("1/3");
+    public static final FixedPointNumber ONE_FOURTH     = new FixedPointNumber("1/4");
+    public static final FixedPointNumber ONE_FIFTH      = new FixedPointNumber("1/5");
+    public static final FixedPointNumber ONE_TENTH      = new FixedPointNumber("1/10");
+    public static final FixedPointNumber ONE_HUNDREDTH  = new FixedPointNumber("1/100");
+    public static final FixedPointNumber ONE_THOUSANDTH = new FixedPointNumber("1/1000");
+	
 	// ---------------------------------------------------------------
 
 	private BigDecimal value;
@@ -130,8 +158,12 @@ public class FixedPointNumber extends BigDecimalWrapper
 			throw new IllegalArgumentException("argument <numStr> is null");
 		}
 		
-		int divIdx = numStr.indexOf(DIV_SYMB);
+		if ( numStr.trim().length() == 0 ) {
+			value = BigDecimal.ZERO;
+			return;
+		}
 		
+		int divIdx = numStr.indexOf(DIV_SYMB);
 		if ( divIdx == -1 ) {
 			parseDecimal( numStr );
 		} else {
@@ -203,6 +235,40 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 */
 	private void parseRational(String numStr, int divIdx)
 	{
+		BigFraction bf = BigFraction.parse(numStr);
+
+		if ( bf.getNumerator().longValue() == 0 ) {
+			value = BigDecimal.ZERO;
+			return;
+		}
+		
+		if ( bf.getDenominator().longValue() == 1 ||
+		     bf.getDenominator().longValue() == -1 ) {
+			value = bf.bigDecimalValue(SCALE_MIN, RoundingMode.HALF_UP);
+			return;
+		}
+		
+		// Not safe:
+		// value = bf.bigDecimalValue();
+//		BigDecimal numer = new BigDecimal(bf.getNumerator());
+//		BigDecimal denom = new BigDecimal(bf.getDenominator());
+//		int scale = Math.max( Math.max(SCALE_MIN, numer.scale()), denom.scale() );
+		int scale = SCALE_MIN;
+		while ( scale <= SCALE_MAX ) {
+			value = bf.bigDecimalValue(scale, RoundingMode.HALF_UP); // init
+		    String str = toStringCoreStat(value, /* nf, */ scale);
+			String fractStr = str.split("\\.")[1];
+			String fractRestStr = fractStr.replaceAll( "0", "" );
+			if ( ! fractRestStr.equals( "" ) ) {
+				break;
+			}
+			
+			scale++;
+		}
+	}
+	
+	private void parseRationalOld(String numStr, int divIdx)
+	{
 		String numerStr = numStr.substring(0, divIdx).trim();
 
 		// ::TODO: Have the following done by BigFraction
@@ -260,6 +326,10 @@ public class FixedPointNumber extends BigDecimalWrapper
     // ---------------------------------------------------------------
     
     public static FixedPointNumber of(final BigFraction num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
     	return new FixedPointNumber("" + num.getNumerator() + DIV_SYMB + num.getDenominator());
     }
     
@@ -283,7 +353,7 @@ public class FixedPointNumber extends BigDecimalWrapper
     }
 
     public static FixedPointNumber from(double val, final double epsilon, final int maxIterations) {
-        if ( epsilon <= 0 ) {
+        if ( epsilon <= 0.0 ) {
             throw new IllegalArgumentException("argument <epsilon> must be > 0.0");
         }
         
@@ -298,10 +368,18 @@ public class FixedPointNumber extends BigDecimalWrapper
         BigFraction bf = BigFraction.from(val, epsilon, maxIterations);
         // Not safe:
         // return new FixedPointNumber( bf.bigDecimalValue() );
+        // Doesn't work well:
+        // return new FixedPointNumber( bf.bigDecimalValue(RoundingMode.HALF_UP) );
         // Better:
         return new FixedPointNumber( bf.toString() );
     }
+    
 	// ---------------------------------------------------------------
+    
+//    @Override
+//	public BigDecimal setScale(int newScale, RoundingMode roundingMode) {
+//    	return value.setScale(newScale, roundingMode);
+//    }
 
 	/**
 	 * @return the value as a BigDecimal.
@@ -359,8 +437,12 @@ public class FixedPointNumber extends BigDecimalWrapper
     // ---------------------------------------------------------------
 
     // return { -1, 0, + 1 } if a < b, a = b, or a > b
-    public int compareTo(FixedPointNumber b) {
-        return value.compareTo(b);
+    public int compareTo(FixedPointNumber num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+        return value.compareTo(num);
     }
 
 	// ---------------------------
@@ -370,6 +452,10 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return true if and only if this &gt; other
 	 */
 	public boolean isGreaterThan(final FixedPointNumber other) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
 		return isGreaterThan(other.getBigDecimal());
 	}
 
@@ -379,6 +465,10 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return as ifGreaterThan, but with given tolerance allowed
 	 */
 	public boolean isGreaterThan(final FixedPointNumber other, double tolerance) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
 		return isGreaterThan(other.getBigDecimal(), tolerance);
 	}
 
@@ -387,6 +477,10 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return true if and only if this &gt; other
 	 */
 	public boolean isGreaterThan(final BigDecimal other) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
 		return ( value.compareTo(other) > 0 );
 	}
 
@@ -396,8 +490,13 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return as ifGreaterThan, but with given tolerance allowed
 	 */
 	public boolean isGreaterThan(final BigDecimal other, double tolerance) {
-		if ( tolerance <= 0.0 )
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
+		if ( tolerance <= 0.0 ) {
 			throw new IllegalArgumentException("Tolerance must be > 0.0");
+		}
 
 		BigDecimal diff = value.subtract(other);
 		// System.err.println("diff: " + diff);
@@ -412,10 +511,18 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return true if and only if this&lt;other
 	 */
 	public boolean isLessThan(final FixedPointNumber other) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
 		return isLessThan(other.getBigDecimal());
 	}
 
 	public boolean isLessThan(final FixedPointNumber other, double tolerance) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
 		return other.isGreaterThan(this, tolerance);
 	}
 
@@ -424,12 +531,21 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return true if and only if this&lt;other
 	 */
 	public boolean isLessThan(final BigDecimal other) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
 		return value.compareTo(other) < 0;
 	}
 
 	public boolean isLessThan(final BigDecimal other, double tolerance) {
-		if ( tolerance <= 0.0 )
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
+		if ( tolerance <= 0.0 ) {
 			throw new IllegalArgumentException("Tolerance must be > 0.0");
+		}
 
 		FixedPointNumber temp = new FixedPointNumber(other);
 		return temp.isGreaterThan(this, tolerance);
@@ -444,17 +560,25 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param n the value to add
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber add(final FixedPointNumber n) {
-		return add(n.getBigDecimal());
+	public FixedPointNumber add(final FixedPointNumber num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		return add(num.getBigDecimal());
 	}
 
 	/**
-	 * @param n the value to add
+	 * @param num the value to add
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
 	@Override
-	public FixedPointNumber add(final BigDecimal n) {
-		value = value.add(n);
+	public FixedPointNumber add(final BigDecimal num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		value = value.add(num);
 		return this;
 	}
 
@@ -462,24 +586,32 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param n the value to add
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber add(final int n) {
-		return add(new BigDecimal(n));
+	public FixedPointNumber add(final int num) {
+		return add(new BigDecimal(num));
 	}
 
 	/**
 	 * @param n the value to add
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber add(final long n) {
-		return add(new BigDecimal(n));
+	public FixedPointNumber add(final long num) {
+		return add(new BigDecimal(num));
 	}
 
 	/**
 	 * @param n the value to add
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber add(final String n) {
-		return add(new FixedPointNumber(n));
+	public FixedPointNumber add(final String numStr) {
+		if ( numStr == null ) {
+			throw new IllegalArgumentException("argument <numStr> is null");
+		}
+		
+		if ( numStr.trim().length() == 0 ) {
+			throw new IllegalArgumentException("argument <numStr> is empty");
+		}
+		
+		return add(new FixedPointNumber(numStr));
 	}
 
 	// ----------------------------
@@ -488,8 +620,12 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param n the value to subtract from this value
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber subtract(final FixedPointNumber n) {
-		return subtract(n.getBigDecimal());
+	public FixedPointNumber subtract(final FixedPointNumber num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		return subtract(num.getBigDecimal());
 	}
 
 	/**
@@ -497,8 +633,12 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
 	@Override
-	public FixedPointNumber subtract(final BigDecimal n) {
-		value = value.subtract(n);
+	public FixedPointNumber subtract(final BigDecimal num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		value = value.subtract(num);
 		return this;
 	}
 
@@ -506,24 +646,32 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param n the value to subtract from this value
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber subtract(final int n) {
-		return subtract(new BigDecimal(n));
+	public FixedPointNumber subtract(final int num) {
+		return subtract(new BigDecimal(num));
 	}
 
 	/**
 	 * @param n the value to subtract from this value
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber subtract(final long n) {
-		return subtract(new BigDecimal(n));
+	public FixedPointNumber subtract(final long num) {
+		return subtract(new BigDecimal(num));
 	}
 
 	/**
 	 * @param n the value to subtract from this value
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber subtract(final String n) {
-		return subtract(new FixedPointNumber(n));
+	public FixedPointNumber subtract(final String numStr) {
+		if ( numStr == null ) {
+			throw new IllegalArgumentException("argument <numStr> is null");
+		}
+		
+		if ( numStr.trim().length() == 0 ) {
+			throw new IllegalArgumentException("argument <numStr> is empty");
+		}
+		
+		return subtract(new FixedPointNumber(numStr));
 	}
 
 	// ----------------------------
@@ -533,8 +681,12 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 *          new value)
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber multiply(final FixedPointNumber n) {
-		return multiply(n.getBigDecimal());
+	public FixedPointNumber multiply(final FixedPointNumber num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		return multiply(num.getBigDecimal());
 	}
 
 	/**
@@ -543,8 +695,12 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
 	@Override
-	public FixedPointNumber multiply(final BigDecimal n) {
-		value = value.multiply(n);
+	public FixedPointNumber multiply(final BigDecimal num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		value = value.multiply(num);
 		return this;
 	}
 
@@ -553,8 +709,8 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 *          new value)
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber multiply(final int n) {
-		return multiply(new BigDecimal(n));
+	public FixedPointNumber multiply(final int num) {
+		return multiply(new BigDecimal(num));
 	}
 
 	/**
@@ -562,12 +718,20 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 *          new value)
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber multiply(final long n) {
-		return multiply(new BigDecimal(n));
+	public FixedPointNumber multiply(final long num) {
+		return multiply(new BigDecimal(num));
 	}
 
-	public FixedPointNumber multiply(final String n) {
-		return multiply(new FixedPointNumber(n));
+	public FixedPointNumber multiply(final String numStr) {
+		if ( numStr == null ) {
+			throw new IllegalArgumentException("argument <numStr> is null");
+		}
+		
+		if ( numStr.trim().length() == 0 ) {
+			throw new IllegalArgumentException("argument <numStr> is empty");
+		}
+		
+		return multiply(new FixedPointNumber(numStr));
 	}
 
 	// ----------------------------
@@ -576,24 +740,35 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param n the value to divide by
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber divide(final FixedPointNumber n) {
-		return divide(n.getBigDecimal());
+	public FixedPointNumber divide(final FixedPointNumber num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		int scale = Math.max( value.scale(), num.scale() );
+		value = value.divide( num.getBigDecimal(), scale, RoundingMode.HALF_UP );
+//		value = value.divide( num.getBigDecimal(), MathContext.DECIMAL128 );
+		return this;
 	}
 
 	/**
 	 * @param n the value to divide by
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber divide(final BigDecimal n) {
-		BigDecimal n2 = n;
+	public FixedPointNumber divide(final BigDecimal num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		BigDecimal n2 = num;
 	
 		// make sure we have enough digits 
 		// after the comma:
-		value = value.setScale(value.scale() + n.precision()); 
+		value = value.setScale(value.scale() + num.precision()); 
 	
 		// workaround for a bug in BigDecimal
-		if ( n.scale() < value.scale() ) {
-			n2 = n.setScale(value.scale());
+		if ( num.scale() < value.scale() ) {
+			n2 = num.setScale(value.scale());
 		}
 		
 		value = value.divide(n2, RoundingMode.HALF_UP);
@@ -604,20 +779,28 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param n the value to divide by
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber divide(final int n) {
-		return divide(new BigDecimal(n));
+	public FixedPointNumber divide(final int num) {
+		return divide(new BigDecimal(num));
 	}
 
 	/**
 	 * @param n the value to divide by
 	 * @return this (we are mutable) for easy operation-chaining
 	 */
-	public FixedPointNumber divide(final long n) {
-		return divide(new BigDecimal(n));
+	public FixedPointNumber divide(final long num) {
+		return divide(new BigDecimal(num));
 	}
 
-	public FixedPointNumber divide(final String n) {
-		return divide(new FixedPointNumber(n));
+	public FixedPointNumber divide(final String numStr) {
+		if ( numStr == null ) {
+			throw new IllegalArgumentException("argument <numStr> is null");
+		}
+		
+		if ( numStr.trim().length() == 0 ) {
+			throw new IllegalArgumentException("argument <numStr> is empty");
+		}
+		
+		return divide(new FixedPointNumber(numStr));
 	}
 
 	// ---------------------------------------------------------------
@@ -673,6 +856,14 @@ public class FixedPointNumber extends BigDecimalWrapper
 	// ---------------------------------------------------------------
 
 	public static FixedPointNumber min(final FixedPointNumber a, final FixedPointNumber b) {
+		if ( a == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		if ( b == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
 		if ( a.getBigDecimal().compareTo(b.getBigDecimal()) == -1 ) {
 			return a;
 		} else {
@@ -681,6 +872,14 @@ public class FixedPointNumber extends BigDecimalWrapper
 	}
 	
 	public static FixedPointNumber max(final FixedPointNumber a, final FixedPointNumber b) {
+		if ( a == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		if ( b == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
 		if ( a.getBigDecimal().compareTo(b.getBigDecimal()) == -1 ) {
 			return b;
 		} else {
@@ -830,5 +1029,21 @@ public class FixedPointNumber extends BigDecimalWrapper
 	private String toGCshKmmString_red() {
 		return toBigFraction().toString();
 	}
+	
+	// ---
 
+	// Cf. https://stackoverflow.com/questions/30893770/how-to-retain-trailing-zeroes-when-converting-bigdecimal-to-string
+	public static String toStringCoreStat(BigDecimal val, /* DecimalFormat df, */ final int nofDigits) {
+		if ( val == null ) {
+			throw new IllegalAccessError("argument <val> is null");
+		}
+		
+		String pattern = "#0.";
+		for ( int i = 0; i < nofDigits; i++ ) {
+			pattern += "0";
+		}
+		DecimalFormat fmt = new DecimalFormat(pattern, new DecimalFormatSymbols(Locale.US));
+
+		return fmt.format(val);
+	}
 }

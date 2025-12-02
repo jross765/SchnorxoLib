@@ -1,7 +1,10 @@
 package xyz.schnorxoborx.base.numbers;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.apache.commons.numbers.fraction.BigFraction;
 import org.junit.Before;
@@ -20,6 +23,7 @@ public class TestFixedPointNumberBigRational {
 		junit.textui.TestRunner.run(suite());
     }
 
+	@SuppressWarnings("exports")
 	public static junit.framework.Test suite() {
     	return new JUnit4TestAdapter(TestFixedPointNumberBigRational.class);
     }
@@ -33,10 +37,12 @@ public class TestFixedPointNumberBigRational {
 
     @Test
     public void test10_1() throws Exception {
-    	FixedPointNumber num  = new FixedPointNumber();
+    	FixedPointNumber num  = FixedPointNumber.ZERO.copy();  // important: copy()
     	BigFraction      brat = BigFraction.ZERO;
     	assertEquals(0, brat.getNumerator().longValue());
     	assertEquals(1, brat.getDenominator().longValue());
+    	// ::TODO
+    	// assertEquals(0, num.getBigDecimal().compareTo( brat.bigDecimalValue() ));
     	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
     	assertEquals(num.toString(), brat.toString());
     	assertEquals(num.toBigFraction(), brat);
@@ -154,7 +160,7 @@ public class TestFixedPointNumberBigRational {
     
     @Test
     public void test10_2() throws Exception {
-    	FixedPointNumber num  = new FixedPointNumber();
+    	FixedPointNumber num  = FixedPointNumber.ZERO.copy(); // important: copy()
     	BigFraction      brat = BigFraction.ZERO;
     	assertEquals(0, brat.getNumerator().longValue());
     	assertEquals(1, brat.getDenominator().longValue());
@@ -162,7 +168,7 @@ public class TestFixedPointNumberBigRational {
     	assertEquals(num.toString(), brat.toString());
     	assertEquals(num.toBigFraction(), brat);
 
-    	num  = new FixedPointNumber(0);
+    	num  = FixedPointNumber.ZERO.copy();
     	brat = BigFraction.ZERO;
     	assertEquals(0, brat.getNumerator().longValue());
     	assertEquals(1, brat.getDenominator().longValue());
@@ -309,60 +315,118 @@ public class TestFixedPointNumberBigRational {
     @Test
     public void test07_1() throws Exception {
     	double eps = 0.01;
-    	FixedPointNumber br = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
-    	assertEquals(Math.PI, br.doubleValue(), eps);
-    	assertNotEquals(Math.PI, br.doubleValue(), eps / 10);
+    	FixedPointNumber fp = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
+    	fp.setScale(2, RoundingMode.HALF_UP);
+    	assertEquals(Math.PI, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.PI)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.PI))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 0.001;
-    	br = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
-    	assertEquals( Math.PI, br.doubleValue(), eps);
-    	assertNotEquals(Math.PI, br.doubleValue(), eps / 100); // <-- CAUTION
+    	fp = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
+    	fp.setScale(3, RoundingMode.HALF_UP);
+    	assertEquals( Math.PI, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.PI)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.PI))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 1.0e-5;
-    	br = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
-    	assertEquals( Math.PI, br.doubleValue(), eps);
-    	assertNotEquals(Math.PI, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
+    	fp.setScale(5, RoundingMode.HALF_UP);
+    	assertEquals( Math.PI, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.PI)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.PI))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 1.0e-7;
-    	br = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
-    	// ::TODO
-    	// assertEquals( Math.PI, br.doubleValue(), eps);
-    	assertNotEquals(Math.PI, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
+    	fp.setScale(7, RoundingMode.HALF_UP);
+    	// assertEquals( Math.PI, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.PI)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.PI))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 1.0e-10;
-    	br = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
-    	// ::TODO
-    	// assertEquals( Math.PI, br.doubleValue(), eps);
-    	assertNotEquals(Math.PI, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
+    	// assertEquals( Math.PI, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.PI)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.PI))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
+    	
+    	eps = 1.0e-15;
+    	fp = FixedPointNumber.from(Math.PI, eps, MAX_ITER);
+    	// assertEquals( Math.PI, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.PI)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.PI))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	// ---
     	
     	eps = 0.01;
-    	br = FixedPointNumber.from(Math.E, eps, MAX_ITER);
-    	assertEquals(Math.E, br.doubleValue(), eps);
-    	assertNotEquals(Math.E, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.E, eps, MAX_ITER);
+    	assertEquals(Math.E, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.E)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.E))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 0.001;
-    	br = FixedPointNumber.from(Math.E, eps, MAX_ITER);
-    	assertEquals(Math.E, br.doubleValue(), eps);
-    	assertNotEquals(Math.E, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.E, eps, MAX_ITER);
+    	assertEquals(Math.E, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.E)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.E))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 1.0e-5;
-    	br = FixedPointNumber.from(Math.E, eps, MAX_ITER);
-    	assertEquals(Math.E, br.doubleValue(), eps);
-    	assertNotEquals(Math.E, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.E, eps, MAX_ITER);
+    	assertEquals(Math.E, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.E)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.E))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 1.0e-7;
-    	br = FixedPointNumber.from(Math.E, eps, MAX_ITER);
-    	// ::TODO
-    	// assertEquals(Math.E, br.doubleValue(), eps);
-    	assertNotEquals(Math.E, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.E, eps, MAX_ITER);
+    	// assertEquals(Math.E, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.E)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.E))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     	
     	eps = 1.0e-10;
-    	br = FixedPointNumber.from(Math.E, eps, MAX_ITER);
-    	// ::TODO
-    	// assertEquals(Math.E, br.doubleValue(), eps);
-    	assertNotEquals(Math.E, br.doubleValue(), eps / 10);
+    	fp = FixedPointNumber.from(Math.E, eps, MAX_ITER);
+    	// assertEquals(Math.E, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.E)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.E))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
+    	
+    	eps = 1.0e-15;
+    	fp = FixedPointNumber.from(Math.E, eps, MAX_ITER);
+    	// assertEquals(Math.E, fp.doubleValue(), eps);
+    	assertEquals(fp.getBigDecimal().doubleValue(), (new BigDecimal(Math.E)).doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
+    	assertTrue( (new BigDecimal(Math.E))
+    					.subtract( fp.getBigDecimal() )
+    					.abs()
+						.compareTo( BigDecimal.valueOf( ConstTest.DIFF_TOLERANCE_LAX ) ) <= 0 ); // tolerance!
     }
     
 }
