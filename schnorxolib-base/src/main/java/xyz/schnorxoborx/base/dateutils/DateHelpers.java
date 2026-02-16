@@ -6,14 +6,17 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
+import xyz.schnorxoborx.base.cmdlinetools.Helper;
 
 public class DateHelpers
 {
+
+  // -----------------------------------------------------------------
   // ::MAGIC
-  public final static String DATE_FORMAT_ISO = "yyyy-MM-dd";
-  public final static String DATE_FORMAT_DE  = "dd.MM.yyyy";
-  public final static String DATE_UNSET      = "01.01.1900";
+
+  public final static String DATE_UNSET = "1900-01-01";
   
   // -----------------------------------------------------------------
 
@@ -21,21 +24,40 @@ public class DateHelpers
    * Parst ein Datum im deutschen Standard-Format (kurz).
    * @param dateStr
    * @return
+ * @throws Exception 
    */
   public static Date parseDate(String dateStr) throws Exception
   {
-    return parseDate(dateStr, DATE_FORMAT_DE); 
+    return parseDate(dateStr, Helper.DateFormat.ISO); 
   }
   
   /**
    * Parst ein Datum im angegebenen Format.
    * @param dateStr
+   * @param pattern 
    * @return
+   * @throws Exception 
    */
-  public static Date parseDate(String dateStr, String format) throws Exception
+  public static Date parseDate(String dateStr, String pattern) throws Exception
   {
-    DateFormat formatter = new SimpleDateFormat(format); 
+    DateFormat formatter = new SimpleDateFormat(pattern); 
     return (Date) formatter.parse(dateStr);
+  }
+  
+  public static Date parseDate(String dateStr, Helper.DateFormat dfAdd) throws Exception
+  {
+    return parseDate(dateStr, dfAdd.getPattern()); 
+  }
+  
+  public static Date parseDate(String dateStr, Locale loc) throws Exception
+  {
+	  // https://stackoverflow.com/questions/4594519/how-do-i-get-localized-date-pattern-string
+	  DateFormat fmt = DateFormat.getDateInstance(DateFormat.SHORT, Locale.getDefault());
+//	  String pattern       = ((SimpleDateFormat)fmt).toPattern();
+	  String localPattern  = ((SimpleDateFormat)fmt).toLocalizedPattern();
+//	  DateFormat formatter = new SimpleDateFormat(localPattern, loc); 
+//	  return (Date) formatter.parse(dateStr);
+	  return parseDate(dateStr, localPattern);
   }
   
   // -----------------------------------------------------------------
@@ -65,13 +87,13 @@ public class DateHelpers
    */
   public static String getStr1(Date date) throws Exception
   {
-    return getStr(date, DATE_FORMAT_DE);
+    return getStr(date, Helper.DateFormat.ISO.getPattern());
   }
   
   /* dto. */
   public static String getStr1(Day day) throws Exception
   {
-    return getStr(day.getDate(), DATE_FORMAT_DE);
+    return getStr(day.getDate(), Helper.DateFormat.ISO.getPattern());
   }
   
   /**
@@ -81,13 +103,13 @@ public class DateHelpers
    */
   public static String getStr2(Date date) throws Exception
   {
-    return getStr(date, DATE_FORMAT_ISO);
+    return getStr(date, Helper.DateFormat.ISO.getPattern());
   }
   
   /* dto. */
   public static String getStr2(Day day) throws Exception
   {
-    return getStr(day.getDate(), DATE_FORMAT_ISO);
+    return getStr(day.getDate(), Helper.DateFormat.ISO.getPattern());
   }
   
   /**
@@ -95,15 +117,15 @@ public class DateHelpers
    * @param dateStr
    * @return
    */
-  public static String getStr(Date date, String format) throws Exception
+  public static String getStr(Date date, String pattern) throws Exception
   {
-    DateFormat formatter = new SimpleDateFormat(format); 
+    DateFormat formatter = new SimpleDateFormat(pattern); 
     return formatter.format(date);
   }
   
-  public static String getStr(Day day, String format) throws Exception
+  public static String getStr(Day day, String pattern) throws Exception
   {
-    return getStr(day.getDate(), format);
+    return getStr(day.getDate(), pattern);
   }
   
   // -----------------------------------------------------------------

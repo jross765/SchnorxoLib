@@ -8,7 +8,6 @@ import java.time.Month;
 import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
-import xyz.schnorxoborx.base.dateutils.LocalDateTimeHelpers;
 
 public class TestLocalDateTimeHelpers
 {
@@ -17,7 +16,8 @@ public class TestLocalDateTimeHelpers
     junit.textui.TestRunner.run(suite());
   }
 
-  public static junit.framework.Test suite() 
+  @SuppressWarnings("exports")
+public static junit.framework.Test suite() 
   {
     return new JUnit4TestAdapter(TestLocalDateTimeHelpers.class);  
   }

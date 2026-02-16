@@ -6,8 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
-import xyz.schnorxoborx.base.basetypes.InvalidYearException;
-import xyz.schnorxoborx.base.basetypes.Year;
 
 public class TestYear 
 {

@@ -7,10 +7,15 @@ import java.util.Date;
 
 import xyz.schnorxoborx.base.basetypes.InvalidQuarterException;
 import xyz.schnorxoborx.base.basetypes.Quarter;
+import xyz.schnorxoborx.base.cmdlinetools.Helper;
 
 public class LocalDateHelpers
 {
-  public final static String DATE_UNSET = "01.01.1900"; // ::MAGIC
+
+  // ----------------------------------------------------------------
+  // ::MAGIC
+
+  public final static String DATE_UNSET = DateHelpers.DATE_UNSET;
 
   // -----------------------------------------------------------------
 
@@ -81,9 +86,15 @@ public class LocalDateHelpers
     return toLocalDate(DateHelpers.parseDate(dateStr));
   }
 
-  public static LocalDate parseLocalDate(String dateStr, String dateFormat) throws Exception
+  public static LocalDate parseLocalDate(String dateStr, String dateFmtStr) throws Exception
   {
-    return toLocalDate(DateHelpers.parseDate(dateStr, dateFormat));
+    return toLocalDate(DateHelpers.parseDate(dateStr, dateFmtStr));
+  }
+
+  public static LocalDate parseLocalDate(String dateStr, Helper.DateFormat dateFmt) throws Exception
+  {
+	  String pattern = dateFmt.getPattern();
+	  return parseLocalDate(dateStr, pattern);
   }
 
   // -----------------------------------------------------------------

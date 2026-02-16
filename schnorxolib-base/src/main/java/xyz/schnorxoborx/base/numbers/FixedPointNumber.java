@@ -13,30 +13,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Implementation of representations of numbers as rational number strings,
- * as used by, e.g., 
+ * Class to handle computations of numbers as used by, e.g., 
  * GnuCash (gnucash.org)
  * and  
  * KMyMoney (kmymoney.org).
  * E.g.: the string "2/100" means "0.02"
  * <br>
  * <b>CAUTION</b>: The name of this class is misleading: It is, in fact, <b>not</b> a 
- * fixed-point number (not even internally; there is just one small piece of code 
- * that suggests that it all once <b>started</b> with a fixed point number), 
- * but rather an alternative implementation for BigRational (in the same package)
- * plus some extra capabilities.
+ * fixed-point number (there is just one small piece of code that suggests that it 
+ * all once <b>started</b> with a fixed point number), but rather a (inconsistent and 
+ * ugly) wrapper for BigDecimal (which is inadequate an internal representation) plus 
+ * some extra capabilities, above all:
+ * <ul>
+ *   <li>Safe parsing of strings:</li>
+ *   <ul>
+ *     <li>decimal number strings</li>
+ *     <li>rational number strings (fractions)</li>
+ *   </ul>
+ *   <li>Safe approximations of double values (optimal for GnuCash and KMyMoney)</li>
+ *   <li>High-precision computations (but not exact!)</li>
+ *   <li>Safe string output (primarily for GnuCash and KMyMoney, i.e. as fractions)</li>
+ * </ul>
  * And thus, as opposed to computations with genuine fixed point numbers, this class 
  * enables you to make computations with (virtually) <b>arbitrary precision</b>. However, 
  * it cannot make <b>exact</b> computations, which is sub-optimal for a class
  * used for GnuCash and KMyMoney files, as these two programs do compute exactly, 
- * using only rational numbers..
+ * using only rational numbers.
  * <br>
  * But For historical reasons and because it's now used in thousands of instances
  * and in possibly tens of variants of the JGnuCash lib, we had to keep the name -- 
  * for a while, at least.
  * <br>
- * <b>CAUTION</b>: For historical reasons, this implementation is 
- * <b>not immutable</b> (as opposed to what one might expect).
+ * <b>CAUTION</b>: For historical reasons, this class is <b>mutable</b> 
+ * (as opposed to what one might expect).
  */
 public class FixedPointNumber extends BigDecimalWrapper 
 							  implements Cloneable 
@@ -48,6 +57,7 @@ public class FixedPointNumber extends BigDecimalWrapper
 	private static final long serialVersionUID = -881174269202431057L;
 	
 	// ----------------------------
+	// ::MAGIC
 	
 	private static final char DIV_SYMB = '/';
 	
@@ -55,7 +65,12 @@ public class FixedPointNumber extends BigDecimalWrapper
 	private static final char DECIMAL_SEP_COMMA = ',';
 	
     private static final int  SCALE_MIN = 5;
-    private static final int  SCALE_MAX = 32;
+    private static final int  SCALE_MAX = 12; // Far more than enough for our needs.
+                                              // In theory, we can go much further,
+                                              // but GnuCash / KMyMoney cannot handle
+                                              // the fractions with ridiculously large
+    										  // numerators and denominators that will 
+    										  // be generated with too high a number here.
 
 	// ----------------------------
     // CAUTION: Use the following >> always with copy() <<
@@ -93,7 +108,7 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * same as new FixedPointNumber(0) or FixedPointNumber("0").
 	 */
 	public FixedPointNumber() {
-		value = BigDecimal.valueOf(0);
+		value = BigDecimal.ZERO;
 	}
 
 	/**
@@ -122,16 +137,14 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param num the new value
 	 */
 	public FixedPointNumber(final int num) {
-		value = new BigDecimal("" + num);
-
+		value = new BigDecimal(num);
 	}
 
 	/**
 	 * @param num the new value
 	 */
 	public FixedPointNumber(final long num) {
-		value = new BigDecimal("" + num);
-
+		value = new BigDecimal(num);
 	}
 
 	/**
@@ -154,36 +167,44 @@ public class FixedPointNumber extends BigDecimalWrapper
 	 * @param numStr the String to parse
 	 */
 	public FixedPointNumber(final String numStr) {
+		FixedPointNumber fp = parse(numStr);
+		value = fp.getBigDecimal();
+	}
+	
+	// ---------------------------------------------------------------
+
+	/**
+	 * Accepts string in rational string-format ("5/100" = 0.5) or 
+	 * in decimal format ( "0,5", "0.5" and "123"). 
+	 * Also ignores currency-symbols like or &euro; .
+	 *
+	 * @param numStr the String to parse
+	 * @return 
+	 */
+	public static FixedPointNumber parse(final String numStr)
+	{
 		if ( numStr == null ) {
 			throw new IllegalArgumentException("argument <numStr> is null");
 		}
 		
 		if ( numStr.trim().length() == 0 ) {
-			value = BigDecimal.ZERO;
-			return;
+			return new FixedPointNumber();
 		}
 		
+		FixedPointNumber result = new FixedPointNumber();
 		int divIdx = numStr.indexOf(DIV_SYMB);
 		if ( divIdx == -1 ) {
-			parseDecimal( numStr );
+			result.parseDecimal( numStr );
 		} else {
-			parseRational( numStr, divIdx );
+			result.parseRational( numStr );
 		}
 
-		if ( value == null ) {
-			throw new IllegalArgumentException("value is null! Original string: '" + numStr + "'");
-		}
+		return result;
 	}
 	
-	// ---------------------------------------------------------------
-
-	/*
-	 * Accepts string in the decimal format ("0,5", "0.5" and "123"). 
-	 * Also ignores currency-symbols like or &euro; .
-	 *
-	 * @param numStr the String to parse
-	 */
-	private void parseDecimal(String numStr)
+	// Accepts string in the decimal format ("0,5", "0.5" and "123"). 
+	// Also ignores currency-symbols like or &euro; .
+	private void parseDecimal(/*final*/ String numStr)
 	{
 		int cpIdx = numStr.indexOf(DECIMAL_SEP_COMMA);
 		if ( cpIdx != -1 ) {
@@ -226,101 +247,83 @@ public class FixedPointNumber extends BigDecimalWrapper
 												"Original input was '" + numStr + "'");
 			}
 		}
+		
+		if ( value == null ) {
+			LOGGER.error("parseDecimal: Could not parse string: '" + numStr + "'" );
+			throw new IllegalArgumentException("value is null! Original string: '" + numStr + "'");
+		}
 	}
 	
-	/*
-	 * Accepts string in rational-string-format ("5/2" = 2.5).
-	 *
-	 * @param numStr the String to parse
-	 */
-	private void parseRational(String numStr, int divIdx)
+	// Accepts string in rational-string-format ("5/2" = 2.5).
+	private void parseRational(final String numStr)
 	{
 		BigFraction bf = BigFraction.parse(numStr);
+		
+		try {
+			set(bf);
+		} catch (IllegalArgumentException exc ) {
+			throw new IllegalArgumentException("value is null! Original string: '" + numStr + "'");
+		}
+	}
 
+	// ::TODO ::CHECK: Make it public (and rename it)?
+	private void set(final BigFraction bf)
+	{
+		if ( bf == null ) {
+			throw new IllegalArgumentException("argument <bf> is null");
+		}
+		
 		if ( bf.getNumerator().longValue() == 0 ) {
+			// Is zero
 			value = BigDecimal.ZERO;
 			return;
 		}
 		
 		if ( bf.getDenominator().longValue() == 1 ||
 		     bf.getDenominator().longValue() == -1 ) {
+			// Is whole number
 			value = bf.bigDecimalValue(SCALE_MIN, RoundingMode.HALF_UP);
 			return;
 		}
 		
 		// Not safe:
 		// value = bf.bigDecimalValue();
-//		BigDecimal numer = new BigDecimal(bf.getNumerator());
-//		BigDecimal denom = new BigDecimal(bf.getDenominator());
-//		int scale = Math.max( Math.max(SCALE_MIN, numer.scale()), denom.scale() );
+		// Instead:
+		// "Creative" method: Increment scale until the string 
+		// representation does not have only zeroes after the 
+		// decimal point.
+		// Inefficient, but clean and safe (as opposed to old implementation).
 		int scale = SCALE_MIN;
 		while ( scale <= SCALE_MAX ) {
-			value = bf.bigDecimalValue(scale, RoundingMode.HALF_UP); // init
-		    String str = toStringCoreStat(value, /* nf, */ scale);
-			String fractStr = str.split("\\.")[1];
-			String fractRestStr = fractStr.replaceAll( "0", "" );
-			if ( ! fractRestStr.equals( "" ) ) {
+			value = bf.bigDecimalValue(scale, RoundingMode.HALF_UP); // get scale-specific BigDecimal representation of BigFraction
+		    String bfStr = toStringCoreStat(value, scale); // get scale-specific string representation of BigDecimal
+			String fractStr = bfStr.split("\\.")[1]; // e.t. after the decimal point
+			String fractRestStr = fractStr.replaceAll( "0", "" ); // remove all zero digits
+			if ( fractRestStr.equals( "" ) ) {
+				// there are only zero digits after of the decimal point
+				// (in the scale-specific string representation)
+				if ( scale == SCALE_MAX ) {
+					LOGGER.warn("parseRational: Could not find adequate scale for BigDecimal representation of non-zero BigFraction " + bf);
+					break; // redundant
+				}
+			} else {
+				// We found a non-zero digit after of the decimal point
+				// (in the scale-specific string representation)
+				// ==> We found the smallest scale which we can adequately
+				// represent the non-zero fraction with.
+				LOGGER.debug("parseRational: Found adequate scale for BigDecimal representation of non-zero BigFraction " + bf);
 				break;
 			}
-			
+
 			scale++;
 		}
-	}
-	
-	private void parseRationalOld(String numStr, int divIdx)
-	{
-		String numerStr = numStr.substring(0, divIdx).trim();
-
-		// ::TODO: Have the following done by BigFraction
-		// entirely, and do not compute, i.e., do not allow
-		// numerator and denominator to be BigDecimals/FPN's themselves,
-		// with scale and all the shebang.
 		
-		int addIdx = numerStr.indexOf('+');
-		BigDecimal addMe = null;
-		if ( addIdx > 1 ) {
-			addMe = new BigDecimal(numerStr.substring(0, addIdx).trim());
-			numerStr = numerStr.substring(addIdx + 1).trim();
+		if ( value == null ) {
+			// ::CHECK: Can this actually happen?
+			// (remains from old implementation)
+			LOGGER.error("set: Could not set from BigFraction: '" + bf + "'" );
+			throw new IllegalArgumentException("value is null! BigFraction: '" + bf + "'");
 		}
-
-		String denomStr = numStr.substring(divIdx + 1).trim();
-
-		// special handling if the divider is 1000...
-		boolean simpleDenom = isSimpleDenominator( denomStr );
-		if ( simpleDenom ) {
-			int scale = denomStr.length() - 1;
-			value = new BigDecimal(numerStr).movePointLeft(scale);
-		} else {
-			BigDecimal numer = new BigDecimal(numerStr);
-			// if (numer.scale() < SCALE_MIN) numer.setScale(SCALE_MIN);
-			BigDecimal denom = new BigDecimal(denomStr);
-			// if (denom.scale() < SCALE_MIN) denom.setScale(SCALE_MIN);
-			int scale = Math.max( Math.max(SCALE_MIN, numer.scale()), denom.scale() );
-			if ( denom.compareTo( new BigDecimal(0) ) != 0 ) {
-				value = numer.divide(denom, scale, RoundingMode.HALF_UP);
-			}
-		}
-
-		if ( addMe != null ) {
-			add(addMe);
-		}
-	}
-
-	// Checks whether divider is of form 1000...
-	private boolean isSimpleDenominator(final String denom)
-	{
-		boolean simpleDivider = denom.charAt(0) == '1';
-		
-		if ( simpleDivider ) {
-			for ( int i = 1; i < denom.length(); i++ ) {
-				if ( denom.charAt(i) != '0' ) {
-					simpleDivider = false;
-					break;
-				}
-			}
-		}
-		
-		return simpleDivider;
 	}
 	
     // ---------------------------------------------------------------
@@ -329,8 +332,12 @@ public class FixedPointNumber extends BigDecimalWrapper
 		if ( num == null ) {
 			throw new IllegalArgumentException("argument <num> is null");
 		}
-		
-    	return new FixedPointNumber("" + num.getNumerator() + DIV_SYMB + num.getDenominator());
+
+		// Altern. 1 -- elegant, but not safe:
+		// FixedPointNumber result = new FixedPointNumber();
+		// result.set(num);
+		// Altern. 2 -- not quite as elegant, but safe:
+    	return parse("" + num.getNumerator() + DIV_SYMB + num.getDenominator());
     }
     
     // ---------------------------------------------------------------
@@ -437,7 +444,7 @@ public class FixedPointNumber extends BigDecimalWrapper
     // ---------------------------------------------------------------
 
     // return { -1, 0, + 1 } if a < b, a = b, or a > b
-    public int compareTo(FixedPointNumber num) {
+    public int compareTo(final FixedPointNumber num) {
 		if ( num == null ) {
 			throw new IllegalArgumentException("argument <num> is null");
 		}
@@ -504,11 +511,42 @@ public class FixedPointNumber extends BigDecimalWrapper
 		return ( diff.doubleValue() > tolerance );
 	}
 	
+	/**
+	 * @param other the value to compare to
+	 * @return true if and only if this &gt; other
+	 */
+	public boolean isGreaterThan(final BigFraction other) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
+		FixedPointNumber otherFP = FixedPointNumber.of(other);
+		return isGreaterThan(otherFP);
+	}
+
+	/**
+	 * @param other     the value to compare to
+	 * @param tolerance
+	 * @return as ifGreaterThan, but with given tolerance allowed
+	 */
+	public boolean isGreaterThan(final BigFraction other, double tolerance) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
+		if ( tolerance <= 0.0 ) {
+			throw new IllegalArgumentException("Tolerance must be > 0.0");
+		}
+
+		FixedPointNumber otherFP = FixedPointNumber.of(other);
+		return isGreaterThan(otherFP, tolerance);
+	}
+	
 	// ----------------------------
 
 	/**
 	 * @param other the value to compare to
-	 * @return true if and only if this&lt;other
+	 * @return true if and only if this &lt; other
 	 */
 	public boolean isLessThan(final FixedPointNumber other) {
 		if ( other == null ) {
@@ -528,7 +566,7 @@ public class FixedPointNumber extends BigDecimalWrapper
 
 	/**
 	 * @param other the value to compare to
-	 * @return true if and only if this&lt;other
+	 * @return true if and only if this &lt; other
 	 */
 	public boolean isLessThan(final BigDecimal other) {
 		if ( other == null ) {
@@ -551,14 +589,40 @@ public class FixedPointNumber extends BigDecimalWrapper
 		return temp.isGreaterThan(this, tolerance);
 	}
 	
+	/**
+	 * @param other the value to compare to
+	 * @return true if and only if this &lt; other
+	 */
+	public boolean isLessThan(final BigFraction other) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
+		FixedPointNumber otherFP = FixedPointNumber.of(other);
+		return isLessThan(otherFP);
+	}
+
+	public boolean isLessThan(final BigFraction other, double tolerance) {
+		if ( other == null ) {
+			throw new IllegalArgumentException("argument <other> is null");
+		}
+		
+		if ( tolerance <= 0.0 ) {
+			throw new IllegalArgumentException("Tolerance must be > 0.0");
+		}
+
+		FixedPointNumber otherFP = FixedPointNumber.of(other);
+		return isLessThan(otherFP, tolerance);
+	}
+	
 	// ---------------------------------------------------------------
     // CAUTION:
     // The methods in this section do *not* create new objects.
     // Instead, they *change* the current instance. 
 
 	/**
-	 * @param n the value to add
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to add
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber add(final FixedPointNumber num) {
 		if ( num == null ) {
@@ -570,7 +634,7 @@ public class FixedPointNumber extends BigDecimalWrapper
 
 	/**
 	 * @param num the value to add
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @return this (we are mutable)
 	 */
 	@Override
 	public FixedPointNumber add(final BigDecimal num) {
@@ -582,25 +646,33 @@ public class FixedPointNumber extends BigDecimalWrapper
 		return this;
 	}
 
+	public FixedPointNumber add(final BigFraction num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		return add( FixedPointNumber.of( num ) );
+	}
+
 	/**
-	 * @param n the value to add
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to add
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber add(final int num) {
 		return add(new BigDecimal(num));
 	}
 
 	/**
-	 * @param n the value to add
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to add
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber add(final long num) {
 		return add(new BigDecimal(num));
 	}
 
 	/**
-	 * @param n the value to add
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param numStr the value to add
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber add(final String numStr) {
 		if ( numStr == null ) {
@@ -617,8 +689,8 @@ public class FixedPointNumber extends BigDecimalWrapper
 	// ----------------------------
 
 	/**
-	 * @param n the value to subtract from this value
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to subtract from this value
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber subtract(final FixedPointNumber num) {
 		if ( num == null ) {
@@ -629,8 +701,8 @@ public class FixedPointNumber extends BigDecimalWrapper
 	}
 
 	/**
-	 * @param n the value to subtract from this value
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to subtract from this value
+	 * @return this (we are mutable)
 	 */
 	@Override
 	public FixedPointNumber subtract(final BigDecimal num) {
@@ -642,25 +714,33 @@ public class FixedPointNumber extends BigDecimalWrapper
 		return this;
 	}
 
+	public FixedPointNumber subtract(final BigFraction num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		return subtract( FixedPointNumber.of( num ) );
+	}
+
 	/**
-	 * @param n the value to subtract from this value
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to subtract from this value
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber subtract(final int num) {
 		return subtract(new BigDecimal(num));
 	}
 
 	/**
-	 * @param n the value to subtract from this value
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to subtract from this value
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber subtract(final long num) {
 		return subtract(new BigDecimal(num));
 	}
 
 	/**
-	 * @param n the value to subtract from this value
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param numStr the value to subtract from this value
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber subtract(final String numStr) {
 		if ( numStr == null ) {
@@ -677,9 +757,9 @@ public class FixedPointNumber extends BigDecimalWrapper
 	// ----------------------------
 
 	/**
-	 * @param n the value to multiply this value with (this object will contain the
+	 * @param num the value to multiply this value with (this object will contain the
 	 *          new value)
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber multiply(final FixedPointNumber num) {
 		if ( num == null ) {
@@ -690,9 +770,9 @@ public class FixedPointNumber extends BigDecimalWrapper
 	}
 
 	/**
-	 * @param n the value to multiply this value with (this object will contain the
+	 * @param num the value to multiply this value with (this object will contain the
 	 *          new value)
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @return this (we are mutable)
 	 */
 	@Override
 	public FixedPointNumber multiply(final BigDecimal num) {
@@ -704,19 +784,27 @@ public class FixedPointNumber extends BigDecimalWrapper
 		return this;
 	}
 
+	public FixedPointNumber multiply(final BigFraction num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		return multiply( FixedPointNumber.of(num) );
+	}
+
 	/**
-	 * @param n the value to multiply this value with (this object will contain the
+	 * @param num the value to multiply this value with (this object will contain the
 	 *          new value)
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber multiply(final int num) {
 		return multiply(new BigDecimal(num));
 	}
 
 	/**
-	 * @param n the value to multiply this value with (this object will contain the
+	 * @param num the value to multiply this value with (this object will contain the
 	 *          new value)
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber multiply(final long num) {
 		return multiply(new BigDecimal(num));
@@ -737,8 +825,8 @@ public class FixedPointNumber extends BigDecimalWrapper
 	// ----------------------------
 
 	/**
-	 * @param n the value to divide by
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to divide by
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber divide(final FixedPointNumber num) {
 		if ( num == null ) {
@@ -752,8 +840,8 @@ public class FixedPointNumber extends BigDecimalWrapper
 	}
 
 	/**
-	 * @param n the value to divide by
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to divide by
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber divide(final BigDecimal num) {
 		if ( num == null ) {
@@ -775,17 +863,25 @@ public class FixedPointNumber extends BigDecimalWrapper
 		return this;
 	}
 
+	public FixedPointNumber divide(final BigFraction num) {
+		if ( num == null ) {
+			throw new IllegalArgumentException("argument <num> is null");
+		}
+		
+		return divide( FixedPointNumber.of(num) );
+	}
+
 	/**
-	 * @param n the value to divide by
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to divide by
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber divide(final int num) {
 		return divide(new BigDecimal(num));
 	}
 
 	/**
-	 * @param n the value to divide by
-	 * @return this (we are mutable) for easy operation-chaining
+	 * @param num the value to divide by
+	 * @return this (we are mutable)
 	 */
 	public FixedPointNumber divide(final long num) {
 		return divide(new BigDecimal(num));
@@ -840,14 +936,14 @@ public class FixedPointNumber extends BigDecimalWrapper
     }
     
 	/**
-	 * @return true if we are &gt;= 0
+	 * @return true if this &gt;= 0
 	 */
 	public boolean isPositive() {
 		return ( value.signum() != -1 );
 	}
 
 	/**
-	 * @return true if we are &lt 0
+	 * @return true if this &lt; 0
 	 */
 	public boolean isNegative() {
 		return ! isPositive();
@@ -889,10 +985,8 @@ public class FixedPointNumber extends BigDecimalWrapper
 
 	// ---------------------------------------------------------------
 
-	/**
-	 * @param input the string to remove the curency-symbol from (if it has one)
-	 * @return the String without the currency
-	 */
+	// Small helper: Remove the curency-symbol from the string (if it has one)
+	// ::TODO ::CHECK: Get rid of it?
 	private String removeCurrency(final String input) {
 		String rightOfDecPt = input.replace('€', ' ');
 		rightOfDecPt = rightOfDecPt.replace('$', ' ');
@@ -1027,13 +1121,14 @@ public class FixedPointNumber extends BigDecimalWrapper
 	}
 
 	private String toGCshKmmString_red() {
-		return toBigFraction().toString();
+		return toRatString().replaceAll(" ", "");
 	}
 	
 	// ---
 
+	// Helper method
 	// Cf. https://stackoverflow.com/questions/30893770/how-to-retain-trailing-zeroes-when-converting-bigdecimal-to-string
-	public static String toStringCoreStat(BigDecimal val, /* DecimalFormat df, */ final int nofDigits) {
+	private static String toStringCoreStat(final BigDecimal val, /* DecimalFormat df, */ final int nofDigits) {
 		if ( val == null ) {
 			throw new IllegalAccessError("argument <val> is null");
 		}

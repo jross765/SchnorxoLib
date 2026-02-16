@@ -13,7 +13,7 @@ import org.junit.Test;
 import junit.framework.JUnit4TestAdapter;
 import xyz.schnorxoborx.base.ConstTest;
 
-public class TestFixedPointNumberBigRational {
+public class TestFixedPointNumberBigFraction {
 	
 	private static final int MAX_ITER = 30;
 
@@ -25,7 +25,7 @@ public class TestFixedPointNumberBigRational {
 
 	@SuppressWarnings("exports")
 	public static junit.framework.Test suite() {
-    	return new JUnit4TestAdapter(TestFixedPointNumberBigRational.class);
+    	return new JUnit4TestAdapter(TestFixedPointNumberBigFraction.class);
     }
 
     @Before
@@ -41,8 +41,7 @@ public class TestFixedPointNumberBigRational {
     	BigFraction      brat = BigFraction.ZERO;
     	assertEquals(0, brat.getNumerator().longValue());
     	assertEquals(1, brat.getDenominator().longValue());
-    	// ::TODO
-    	// assertEquals(0, num.getBigDecimal().compareTo( brat.bigDecimalValue() ));
+    	assertEquals(0, num.getBigDecimal().compareTo( brat.bigDecimalValue() ));
     	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
     	assertEquals(num.toString(), brat.toString());
     	assertEquals(num.toBigFraction(), brat);
@@ -226,8 +225,7 @@ public class TestFixedPointNumberBigRational {
     	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
     	// assertEquals(num.toString(), brat.toString());
     	// ::TODO
-    	// assertEquals(new BigRational(num.toGnuCashString()), brat);
-    	// assertEquals(num, new FixedPointNumber(brat.toGnuCashString()));
+    	// assertEquals(BigFraction.parse(num.toGnuCashString()), brat);
     	// ::TODO
     	// assertEquals(num.toBigFraction(), brat);
     	
@@ -240,7 +238,7 @@ public class TestFixedPointNumberBigRational {
     	assertEquals(Math.PI, brat.doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
     	// assertEquals(num.toString(), brat.toString());
     	// ::TODO
-    	// assertEquals(new BigRational(num.toGnuCashString()), brat);
+    	// assertEquals(BigFraction.parse(num.toGnuCashString()), brat);
     	// ::TODO
     	// assertEquals(num.toBigFraction(), brat);
     	
@@ -298,7 +296,8 @@ public class TestFixedPointNumberBigRational {
     	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
     	// assertEquals(num.toString(), brat.toString());
     	assertEquals(BigFraction.parse(num.toGnuCashString()), brat);
-    	assertEquals(num.toGnuCashString(), brat.toString());
+    	assertEquals(num.toRatString(), brat.toString());
+    	assertEquals(num.toGnuCashString(), brat.toString().replaceAll(" ",""));
     	assertEquals(num.toBigFraction(), brat);
     	
     	num  = new FixedPointNumber("0.325");
@@ -308,7 +307,8 @@ public class TestFixedPointNumberBigRational {
     	assertEquals(num.doubleValue(), brat.doubleValue(), ConstTest.DIFF_TOLERANCE_LAX);
     	// assertEquals(num.toString(), brat.toString());
     	assertEquals(BigFraction.parse(num.toGnuCashString()), brat);
-    	assertEquals(num.toGnuCashString(), brat.toString());
+    	assertEquals(num.toRatString(), brat.toString());
+    	assertEquals(num.toGnuCashString(), brat.toString().replaceAll(" ",""));
     	assertEquals(num.toBigFraction(), brat);
     }
 

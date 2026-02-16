@@ -6,8 +6,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
-import xyz.schnorxoborx.base.basetypes.InvalidQuarterException;
-import xyz.schnorxoborx.base.basetypes.Quarter;
 
 public class TestQuarter 
 {

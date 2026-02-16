@@ -9,10 +9,6 @@ import java.util.Date;
 import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
-import xyz.schnorxoborx.base.dateutils.Day;
-import xyz.schnorxoborx.base.dateutils.IllegalDayOfMonthValueException;
-import xyz.schnorxoborx.base.dateutils.IllegalMonthValueException;
-import xyz.schnorxoborx.base.dateutils.JulianDate;
 
 public class TestJulianDate
 {
@@ -21,7 +17,8 @@ public class TestJulianDate
     junit.textui.TestRunner.run(suite());
   }
 
-  public static junit.framework.Test suite() 
+  @SuppressWarnings("exports")
+public static junit.framework.Test suite() 
   {
     return new JUnit4TestAdapter(TestJulianDate.class);  
   }

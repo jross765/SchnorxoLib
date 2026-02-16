@@ -4,22 +4,47 @@ import java.time.LocalDate;
 
 import org.apache.commons.cli.CommandLine;
 
-import xyz.schnorxoborx.base.dateutils.DateHelpers;
+import xyz.schnorxoborx.base.basetypes.DateFmtDatePair;
 import xyz.schnorxoborx.base.dateutils.LocalDateHelpers;
 
 public class CmdLineHelper
 {
 
+	public static DateFmtDatePair getDateComplete(CommandLine cmdLine, 
+			String fmtArgName, String dateArgName)
+			throws InvalidCommandLineArgsException
+	{
+		DateFmtDatePair result = new DateFmtDatePair();
+		
+		result.dateFmt = getDateFormat(cmdLine, fmtArgName);
+		result.date    = getDate(cmdLine, dateArgName, result.dateFmt);
+		
+		return result;
+	}
+	
+	public static DateFmtDatePair getDateComplete(String fmtArg, String fmtArgName,
+												  String dateArg, String dateArgName) throws InvalidCommandLineArgsException
+	{
+		DateFmtDatePair result = new DateFmtDatePair();
+		
+		result.dateFmt = getDateFormat(fmtArg, fmtArgName);
+		result.date    = getDate(dateArg, dateArgName, result.dateFmt);
+		
+		return result;
+	}
+	
+	// ------------------------------
+
 	public static Helper.DateFormat getDateFormat(CommandLine cmdLine, String argName)
 			throws InvalidCommandLineArgsException
 	{
-		Helper.DateFormat dateFormat;
+		Helper.DateFormat dateFmt;
 
 		if ( cmdLine.hasOption( argName ) )
 		{
 			try
 			{
-				dateFormat = Helper.DateFormat.valueOf( cmdLine.getOptionValue( argName ) );
+				dateFmt = Helper.DateFormat.valueOf( cmdLine.getOptionValue(argName) );
 			}
 			catch ( Exception exc )
 			{
@@ -29,10 +54,10 @@ public class CmdLineHelper
 		}
 		else
 		{
-			dateFormat = Helper.DateFormat.ISO_8601;
+			dateFmt = Helper.DateFormat.ISO;
 		}
 
-		return dateFormat;
+		return dateFmt;
 	}
 
 	public static Helper.DateFormat getDateFormat(String arg, String argName) throws InvalidCommandLineArgsException
@@ -43,7 +68,7 @@ public class CmdLineHelper
 		{
 			try
 			{
-				dateFormat = Helper.DateFormat.valueOf( arg );
+				dateFormat = Helper.DateFormat.valueOf(argName);
 			}
 			catch ( Exception exc )
 			{
@@ -53,7 +78,7 @@ public class CmdLineHelper
 		}
 		else
 		{
-			dateFormat = Helper.DateFormat.ISO_8601;
+			dateFormat = Helper.DateFormat.ISO;
 		}
 
 		return dateFormat;
@@ -61,21 +86,14 @@ public class CmdLineHelper
 
 	// ------------------------------
 
-	public static LocalDate getDate(CommandLine cmdLine, String argName, Helper.DateFormat dateFormat)
+	public static LocalDate getDate(CommandLine cmdLine, String argName, Helper.DateFormat dateFmt)
 			throws InvalidCommandLineArgsException
 	{
 		LocalDate datum = LocalDate.now();
 
 		try
 		{
-			if ( dateFormat == Helper.DateFormat.ISO_8601 )
-			{
-				datum = LocalDateHelpers.parseLocalDate( cmdLine.getOptionValue( argName ), DateHelpers.DATE_FORMAT_ISO );
-			}
-			else if ( dateFormat == Helper.DateFormat.DE )
-			{
-				datum = LocalDateHelpers.parseLocalDate( cmdLine.getOptionValue( argName ) );
-			}
+			datum = LocalDateHelpers.parseLocalDate( cmdLine.getOptionValue(argName), dateFmt );
 		}
 		catch ( Exception exc )
 		{
@@ -86,17 +104,14 @@ public class CmdLineHelper
 		return datum;
 	}
 
-	public static LocalDate getDate(String arg, String argName, Helper.DateFormat dateFormat)
+	public static LocalDate getDate(String arg, String argName, Helper.DateFormat dateFmt)
 			throws InvalidCommandLineArgsException
 	{
 		LocalDate datum = LocalDate.now();
 
 		try
 		{
-			if ( dateFormat == Helper.DateFormat.ISO_8601 )
-				datum = LocalDateHelpers.parseLocalDate( arg, DateHelpers.DATE_FORMAT_ISO );
-			else if ( dateFormat == Helper.DateFormat.DE )
-				datum = LocalDateHelpers.parseLocalDate( arg );
+			datum = LocalDateHelpers.parseLocalDate(arg, dateFmt);
 		}
 		catch ( Exception exc )
 		{

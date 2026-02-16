@@ -8,7 +8,6 @@ import java.util.Date;
 import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
-import xyz.schnorxoborx.base.dateutils.DateHelpers;
 
 public class TestDateHelpers
 {
@@ -17,7 +16,8 @@ public class TestDateHelpers
     junit.textui.TestRunner.run(suite());
   }
 
-  public static junit.framework.Test suite() 
+  @SuppressWarnings("exports")
+public static junit.framework.Test suite() 
   {
     return new JUnit4TestAdapter(TestDateHelpers.class);  
   }
