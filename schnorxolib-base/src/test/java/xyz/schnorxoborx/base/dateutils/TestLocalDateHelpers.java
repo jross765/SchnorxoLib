@@ -14,6 +14,7 @@ import org.junit.Test;
 
 import junit.framework.JUnit4TestAdapter;
 import xyz.schnorxoborx.base.basetypes.Quarter;
+import xyz.schnorxoborx.base.cmdlinetools.Helper;
 
 public class TestLocalDateHelpers
 {
@@ -86,5 +87,33 @@ public static junit.framework.Test suite()
     date = LocalDateHelpers.parseLocalDate("2020-10-01");
     assertEquals(new Quarter(4), LocalDateHelpers.getQuarter(date));
   }
+
+	@Test
+	public void test03() throws Exception
+	{
+		LocalDate date = LocalDateHelpers.parseLocalDate(LocalDateHelpers.DATE_UNSET);
+		assertEquals(LocalDateHelpers.DATE_UNSET, date.toString());
+		
+		date = LocalDateHelpers.parseLocalDate("2001-12-31");
+		assertEquals("2001-12-31", date.toString());
+		assertEquals("2001-12-31", LocalDateHelpers.getStr2(date));
+		
+		date = LocalDateHelpers.parseLocalDate("09.11.1989", Helper.DateFormat.DIN);
+		assertEquals("1989-11-09", date.toString());
+		assertEquals("1989-11-09", LocalDateHelpers.getStr2(date));
+		
+		date = LocalDateHelpers.parseLocalDate("17/12/2001", Helper.DateFormat.EU);
+		assertEquals("2001-12-17", date.toString());
+		assertEquals("2001-12-17", LocalDateHelpers.getStr2(date));
+		
+		date = LocalDateHelpers.parseLocalDate("09/11/2001", Helper.DateFormat.US);
+		assertEquals("2001-09-11", date.toString());
+		assertEquals("2001-09-11", LocalDateHelpers.getStr2(date));
+		
+		date = LocalDateHelpers.parseLocalDate("1945/08/06", Helper.DateFormat.ASIA);
+		assertEquals("1945-08-06", date.toString());
+		assertEquals("1945-08-06", LocalDateHelpers.getStr2(date));
+	}
+	
 }
 

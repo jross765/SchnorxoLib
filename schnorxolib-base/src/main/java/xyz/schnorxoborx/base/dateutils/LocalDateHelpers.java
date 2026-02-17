@@ -1,9 +1,12 @@
 package xyz.schnorxoborx.base.dateutils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Locale;
 
 import xyz.schnorxoborx.base.basetypes.InvalidQuarterException;
 import xyz.schnorxoborx.base.basetypes.Quarter;
@@ -59,24 +62,41 @@ public class LocalDateHelpers
   
   // -----------------------------------------------------------------
 
-  public static String getStr(LocalDate datum, String format) throws Exception
-  {
-    return DateHelpers.getStr(toDate(datum), format);
-  }
-
+  @Deprecated
   public static String getStr1(LocalDate date) throws Exception
   {
     return DateHelpers.getStr1(toDate(date));
   }
 
+  @Deprecated
   public static String getStr1(Day date) throws Exception
   {
     return DateHelpers.getStr1(date);
   }
 
+  @Deprecated
   public static String getStr2(LocalDate date) throws Exception
   {
     return DateHelpers.getStr2(toDate(date));
+  }
+
+  public static String getStr(LocalDate date, Helper.DateFormat dateFmt) throws Exception
+  {
+    return getStr(date, dateFmt.getPattern()); 
+  }
+  
+  public static String getStr(LocalDate date, Locale loc) throws Exception
+  {
+    // https://stackoverflow.com/questions/4594519/how-do-i-get-localized-date-pattern-string
+    DateFormat fmt = DateFormat.getDateInstance(DateFormat.SHORT, loc);
+    // String pattern       = ((SimpleDateFormat) fmt).toPattern();
+    String pattern = ((SimpleDateFormat) fmt).toLocalizedPattern();
+    return getStr(date, pattern); 
+  }
+  
+  public static String getStr(LocalDate datum, String format) throws Exception
+  {
+    return DateHelpers.getStr(toDate(datum), format);
   }
 
   // -----------------------------------------------------------------
