@@ -1,6 +1,7 @@
 package xyz.schnorxoborx.base.dateutils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -29,11 +30,26 @@ public class TestDateHelpers
 	}
 
 	@Test
+	public void test00() throws Exception
+	{
+		Date date = DateHelpers.DATE_UNSET;
+		assertEquals(DateHelpers.DATE_UNSET_STR, df.format(date));
+		assertEquals(DateHelpers.DATE_UNSET_STR, DateHelpers.getStr2(date));
+	}
+	
+	@Test
 	public void test01() throws Exception
 	{
-		Date date = DateHelpers.parseDate(LocalDateHelpers.DATE_UNSET);
-		assertEquals(DateHelpers.DATE_UNSET, df.format(date));
-		assertEquals(DateHelpers.DATE_UNSET, DateHelpers.getStr2(date));
+		Date date = DateHelpers.parseDate( "2020-02-01" );
+		assertEquals( "2020-02-01", DateHelpers.getStr2(date) );
+	}
+
+	@Test
+	public void test02() throws Exception
+	{
+		Date date = DateHelpers.parseDate(LocalDateHelpers.DATE_UNSET_STR);
+		assertEquals(DateHelpers.DATE_UNSET_STR, df.format(date));
+		assertEquals(DateHelpers.DATE_UNSET_STR, DateHelpers.getStr2(date));
 		
 		date = DateHelpers.parseDate("2001-12-31");
 		assertEquals("2001-12-31", df.format(date));
@@ -56,6 +72,31 @@ public class TestDateHelpers
 		assertEquals("1945-08-06", DateHelpers.getStr2(date));
 	}
 	
+//	@Test
+//	public void test03() throws Exception
+//	{
+//		Date date = DateHelpers.parseDate( "2020-02-01" );
+//		assertEquals( new Quarter( 1 ), DateHelpers.getQuarter( date ) );
+//
+//		date = DateHelpers.parseDate( "2020-03-31" );
+//		assertEquals( new Quarter( 1 ), DateHelpers.getQuarter( date ) );
+//
+//		date = DateHelpers.parseDate( "2020-04-01" );
+//		assertEquals( new Quarter( 2 ), DateHelpers.getQuarter( date ) );
+//
+//		date = DateHelpers.parseDate( "2020-04-02" );
+//		assertEquals( new Quarter( 2 ), DateHelpers.getQuarter( date ) );
+//
+//		date = DateHelpers.parseDate( "2020-09-30" );
+//		assertEquals( new Quarter( 3 ), DateHelpers.getQuarter( date ) );
+//
+//		date = DateHelpers.parseDate( "2020-10-01" );
+//		assertEquals( new Quarter( 4 ), DateHelpers.getQuarter( date ) );
+//
+//		date = DateHelpers.parseDate( "2020-10-01" );
+//		assertEquals( new Quarter( 4 ), DateHelpers.getQuarter( date ) );
+//	}
+
 	@Test
 	public void test04()
 	{
@@ -65,4 +106,17 @@ public class TestDateHelpers
 		assertEquals( ts.getMonth(), date.getMonth() );
 		assertEquals( ts.getDate(), date.getDate() );
 	}
+
+	@Test
+	public void test05() throws Exception
+	{
+		Date date1 = DateHelpers.parseDate("2000-01-01");
+		
+		Date date2 = DateHelpers.parseDate("2000-01-01");
+		assertEquals( date2, date1 );
+		
+		date2 = DateHelpers.parseDate("2000-01-02");
+		assertNotEquals( date2, date1 );
+	}
+
 }

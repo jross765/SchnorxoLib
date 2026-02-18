@@ -1,5 +1,6 @@
 package xyz.schnorxoborx.base.dateutils;
 
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -8,19 +9,98 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.schnorxoborx.base.basetypes.InvalidQuarterException;
 import xyz.schnorxoborx.base.basetypes.Quarter;
 import xyz.schnorxoborx.base.cmdlinetools.Helper;
 
 public class LocalDateHelpers
 {
+  @SuppressWarnings("unused")
+  private static final Logger LOGGER = LoggerFactory.getLogger(LocalDateHelpers.class);
 
   // ----------------------------------------------------------------
   // ::MAGIC
 
-  public final static String DATE_UNSET = DateHelpers.DATE_UNSET;
+  public final static String    DATE_UNSET_STR = DateHelpers.DATE_UNSET_STR;
+  
+  // public       static LocalDate DATE_UNSET     = null;
+  public final static LocalDate DATE_UNSET     = LocalDate.parse(DATE_UNSET_STR);
+
+  // ----------------------------------------------------------------
+
+//  static
+//  {
+//	  try
+//	  {
+//		  DATE_UNSET  = parseLocalDate(DATE_UNSET_STR);
+//	  }
+//	  catch ( Exception e )
+//	  {
+//		  LOGGER.error("static block: Could not set DATE_UNSET");
+//	  }
+//  }
+  
+  // -----------------------------------------------------------------
+
+  public static LocalDate parseLocalDate(String dateStr) throws Exception
+  {
+    return toLocalDate(DateHelpers.parseDate(dateStr));
+  }
+
+  public static LocalDate parseLocalDate(String dateStr, String dateFmtStr) throws Exception
+  {
+    return toLocalDate(DateHelpers.parseDate(dateStr, dateFmtStr));
+  }
+
+  public static LocalDate parseLocalDate(String dateStr, Helper.DateFormat dateFmt) throws Exception
+  {
+	  String pattern = dateFmt.getPattern();
+	  return parseLocalDate(dateStr, pattern);
+  }
 
   // -----------------------------------------------------------------
+
+  // https://www.baeldung.com/java-date-to-localdate-and-localdatetime
+  public static LocalDate toLocalDate(java.util.Date date) 
+  {
+    // default time zone
+    ZoneId defaultZoneId = ZoneId.systemDefault();
+    
+    LocalDateTime temp = LocalDateTime.ofInstant(date.toInstant(), defaultZoneId);
+    return temp.toLocalDate();
+  }
+  
+  // https://stackoverflow.com/questions/29750861/convert-between-localdate-and-sql-date
+  @SuppressWarnings("exports")
+  public static LocalDate toLocalDate(java.sql.Date date) 
+  {
+    return date.toLocalDate(); // sic
+  }
+  
+  public static LocalDate toLocalDate(Day day) 
+  {
+    return LocalDate.of(day.getYear(), day.getMonthNo(), day.getDayOfMonth());
+  }
+  
+  // ------------------------------
+
+  public static LocalDate copy(LocalDate localDate) 
+  {
+    return LocalDate.of(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
+  }
+  
+  // -----------------------------------------------------------------
+
+  @Deprecated
+  @SuppressWarnings("exports")
+  public static LocalDate toDate(Timestamp ts)
+  {
+    Date temp = DateHelpers.toDate(ts);
+    return toLocalDate(temp);
+  }
 
   // https://beginnersbook.com/2017/10/java-convert-localdate-to-date/
   public static Date toDate(LocalDate localDate) 
@@ -34,32 +114,6 @@ public class LocalDateHelpers
     return date;
   }
 
-  // https://www.baeldung.com/java-date-to-localdate-and-localdatetime
-  public static LocalDate toLocalDate(java.util.Date date) 
-  {
-    // default time zone
-    ZoneId defaultZoneId = ZoneId.systemDefault();
-    
-    LocalDateTime temp = LocalDateTime.ofInstant(date.toInstant(), defaultZoneId);
-    return temp.toLocalDate();
-  }
-  
-  // https://stackoverflow.com/questions/29750861/convert-between-localdate-and-sql-date
-  public static LocalDate toLocalDate(java.sql.Date date) 
-  {
-    return date.toLocalDate(); // sic
-  }
-  
-  public static LocalDate toLocalDate(Day day) 
-  {
-    return LocalDate.of(day.getYear(), day.getMonthNo(), day.getDayOfMonth());
-  }
-  
-  public static LocalDate copy(LocalDate localDate) 
-  {
-    return LocalDate.of(localDate.getYear(), localDate.getMonthValue(), localDate.getDayOfMonth());
-  }
-  
   // -----------------------------------------------------------------
 
   @Deprecated
@@ -101,27 +155,9 @@ public class LocalDateHelpers
 
   // -----------------------------------------------------------------
 
-  public static LocalDate parseLocalDate(String dateStr) throws Exception
-  {
-    return toLocalDate(DateHelpers.parseDate(dateStr));
-  }
-
-  public static LocalDate parseLocalDate(String dateStr, String dateFmtStr) throws Exception
-  {
-    return toLocalDate(DateHelpers.parseDate(dateStr, dateFmtStr));
-  }
-
-  public static LocalDate parseLocalDate(String dateStr, Helper.DateFormat dateFmt) throws Exception
-  {
-	  String pattern = dateFmt.getPattern();
-	  return parseLocalDate(dateStr, pattern);
-  }
-
-  // -----------------------------------------------------------------
-
   public static boolean areEqual(LocalDate date1, LocalDate date2)
   {
-    return DateHelpers.areEqual(toDate(date1), toDate(date2));
+    return date1.equals( date2 );
   }
 
   // -----------------------------------------------------------------

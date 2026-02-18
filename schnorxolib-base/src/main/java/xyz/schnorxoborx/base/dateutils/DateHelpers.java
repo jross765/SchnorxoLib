@@ -8,15 +8,35 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import xyz.schnorxoborx.base.cmdlinetools.Helper;
 
 public class DateHelpers
 {
+  private static final Logger LOGGER = LoggerFactory.getLogger(LocalDateHelpers.class);
 
   // -----------------------------------------------------------------
   // ::MAGIC
 
-  public final static String DATE_UNSET = "1900-01-01";
+  public final static String DATE_UNSET_STR = "1900-01-01";
+  
+  public       static Date   DATE_UNSET     = null;
+
+  // ----------------------------------------------------------------
+
+  static
+  {
+	  try
+	  {
+		  DATE_UNSET  = parseDate(DATE_UNSET_STR);
+	  }
+	  catch ( Exception e )
+	  {
+		  LOGGER.error("static block: Could not set DATE_UNSET");
+	  }
+  }
   
   // -----------------------------------------------------------------
 
@@ -196,6 +216,6 @@ public class DateHelpers
   
   public static Date getUnset() throws Exception
   {
-    return parseDate(DATE_UNSET);
+    return parseDate(DATE_UNSET_STR);
   }
 }
