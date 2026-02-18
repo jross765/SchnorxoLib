@@ -15,7 +15,7 @@ import xyz.schnorxoborx.base.cmdlinetools.Helper;
 
 public class DateHelpers
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(LocalDateHelpers.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(DateHelpers.class);
 
   // -----------------------------------------------------------------
   // ::MAGIC

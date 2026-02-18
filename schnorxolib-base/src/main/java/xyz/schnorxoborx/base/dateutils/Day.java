@@ -41,7 +41,8 @@ import org.slf4j.LoggerFactory;
 public class Day
   implements Comparable, Cloneable, Serializable
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(LocalDateHelpers.class);
+  @SuppressWarnings("unused")
+  private static final Logger LOGGER = LoggerFactory.getLogger(Day.class);
 
   /**
    * 
