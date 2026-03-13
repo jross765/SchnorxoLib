@@ -6,10 +6,10 @@ module schnorxoborx.schnorxolib {
 	
 	// ----------------------------
 	
-	requires transitive org.apache.commons.numbers.core;
-	requires transitive org.apache.commons.numbers.fraction;
 	requires transitive commons.configuration;
 	requires transitive org.apache.commons.cli;
+	requires transitive org.apache.commons.numbers.core;
+	requires transitive org.apache.commons.numbers.fraction;
 
 	// ----------------------------
 	
