@@ -28,6 +28,16 @@
 
 	</repositories>
 
+	<dependencyManagement>
+	
+		<dependencies>
+
+			<!-- ::EMTPY -->
+
+		</dependencies>
+		
+	</dependencyManagement>
+
 	<dependencies>
 
 		<!-- https://mvnrepository.com/artifact/commons-configuration/commons-configuration -->
@@ -44,12 +54,28 @@
 			<version>1.10.0</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-numbers-core -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-numbers-core</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-numbers-fraction -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-numbers-fraction</artifactId>
+			<version>1.2</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.joda/joda-money -->
+		<!--
 		<dependency>
 			<groupId>org.joda</groupId>
 			<artifactId>joda-money</artifactId>
 			<version>1.0.4</version>
 		</dependency>
+		-->
 
 		<!-- https://mvnrepository.com/artifact/com.vdurmont/etaprinter -->
 		<dependency>
@@ -75,21 +101,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.6.3</version>
+				<version>3.12.0</version>
 				<configuration>
 					<show>private</show>
 					<nohelp>true</nohelp>
 					<!-- <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable> -->
 					<javadocExecutable>/usr/bin/javadoc</javadocExecutable>
-					<excludePackageNames>org.gnucash.api.generated:org.gnucash.api.read.hlp:org.gnucash.api.read.impl.hlp:org.gnucash.api.write.hlp:org.gnucash.api.write.impl.hlp</excludePackageNames>
-					<additionalJOptions>
-						<!-- https://www.locked.de/how-to-ignore-maven-javadoc-errors-in-java-8/ -->
-						<additionalparam>-Xdoclint:none</additionalparam>
-					</additionalJOptions>
 				</configuration>
 			</plugin>
-      
-      		</plugins>
+
+		</plugins>
 
 	</build>
 
