@@ -47,7 +47,7 @@ To compile the sources, do the following:
 
 2) Clone the repository
 
-3) Check out the latest version tag. In this case: `V_0_1`.
+3) Check out the latest version tag. In this case: `V_0_2`.
 
    For reasons the author cannot understand, there are plenty of self-appointed super-pro developers who do not seem to understand the concept of version tags and configuration management, i.e. that it's *not* always the latest version that you have to take...
 
