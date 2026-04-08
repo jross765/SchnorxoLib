@@ -38,7 +38,18 @@ Currently, there is just one module:
 * [Base](https://github.com/jross765/schnorxolib/tree/master/schnorxolib-base/README.md)
 
 ## Major Changes
-./.
+
+### V. 0.1.1 &rarr; 0.2
+
+* Module "Base":
+
+  Preparations for deprecating `FixedPointNumber` and migrating to `BigFraction`
+  from from Apache Commons Numbers.
+  More precisely: For this version, "just" introduced `BigFraction` into `FixedPointNumber`:
+
+  * Now, all fraction-related stuff – esp. parsing a fraction-string – is delegated to it.
+  * Added methods to convert to and from it.
+
 
 ## Compiling the Sources
 To compile the sources, do the following:
@@ -49,7 +60,7 @@ To compile the sources, do the following:
 
 3) Check out the latest version tag. In this case: `V_0_2`.
 
-   For reasons the author cannot understand, there are plenty of self-appointed super-pro developers who do not seem to understand the concept of version tags and configuration management, i.e. that it's *not* always the latest version that you have to take...
+   For reasons the author cannot understand, there are plenty of self-declared super-pro developers who do not seem to understand the concept of version tags and configuration management, i.e. that it's *not* always the latest version that you have to take...
 
 4) Compile the sources and install the resulting JAR file in your local repository by typing:
 
