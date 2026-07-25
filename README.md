@@ -39,6 +39,10 @@ Currently, there is just one module:
 
 ## Major Changes
 
+### V. 0.2 &rarr; 0.3
+
+* Module "Base": Deprecated  `FixedPointNumber` (cf. previous notes).
+
 ### V. 0.1.1 &rarr; 0.2
 
 * Module "Base":

@@ -6,12 +6,12 @@
 	<parent>
 		<groupId>xyz.schnorxoborx.schnorxolib</groupId>
 		<artifactId>schnorxolib</artifactId>
-		<version>0.2</version>
+		<version>0.3</version>
 	</parent>
 
 	<artifactId>schnorxolib-base</artifactId>
 	<name>${project.title} : Base</name>
-	<version>0.2</version>
+	<version>0.3</version>
 
 	<properties>
 
@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>org.joda</groupId>
 			<artifactId>joda-money</artifactId>
-			<version>1.0.4</version>
+			<version>1.0.6</version>
 		</dependency>
 		-->
 
@@ -91,6 +91,11 @@
 			<version>3.13.0.v20180226-1711</version>
 		</dependency>
 
+		<dependency>
+			<groupId>xyz.schnorxoborx.basetools</groupId>
+			<artifactId>basetools-base</artifactId>
+			<version>2.7</version>
+		</dependency>
 	</dependencies>
 
 

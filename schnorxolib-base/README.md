@@ -2,7 +2,11 @@
 
 This module is a small helper library with a couple of auxiliary and -- well -- base classes. 
 
-## Major Changes 
+## Major Changes
+
+### V. 0.2 &rarr; V. 0.3
+Deprecated `FixedPointNumber` (cf. previous notes).
+
 ### V. 0.1.1 &rarr; V. 0.2
 Took on the `FixedPointNumber` issue (cf. section "Known Issues" below):
 
