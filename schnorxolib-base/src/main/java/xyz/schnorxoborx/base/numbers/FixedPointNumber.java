@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  * <b>CAUTION</b>: For historical reasons, this class is <b>mutable</b> 
  * (as opposed to what one might expect).
  */
+@Deprecated
 public class FixedPointNumber extends BigDecimalWrapper 
 							  implements Cloneable 
 {
